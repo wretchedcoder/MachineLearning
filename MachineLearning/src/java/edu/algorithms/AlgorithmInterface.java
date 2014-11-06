@@ -7,7 +7,7 @@
 package edu.algorithms;
 
 import edu.data.AlgorithmResults;
-import edu.data.DataSource;
+import edu.data.DataSet;
 import java.util.Dictionary;
 
 /**
@@ -16,6 +16,6 @@ import java.util.Dictionary;
  */
 public interface AlgorithmInterface 
 {
-    public AlgorithmResults executeAlgorithm(DataSource dataSource, 
+    public AlgorithmResults executeAlgorithm(DataSet dataSource, 
             Dictionary<String, Object> options);
 }

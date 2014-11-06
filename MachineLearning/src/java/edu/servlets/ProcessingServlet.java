@@ -6,7 +6,7 @@
 
 package edu.servlets;
 
-import edu.data.DataSource;
+import edu.data.DataSet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -54,7 +54,7 @@ public class ProcessingServlet extends HttpServlet {
         // 3. Each Algorithm's Options
         String dataSourceName = (String) request.getAttribute("datasource");
         
-        DataSource dataSource = DataSource.getDataSource(dataSourceName);
+        DataSet dataSource = DataSet.getDataSet(dataSourceName);
         
         
         

@@ -7,13 +7,11 @@
 package edu.servlets;
 
 
+import edu.data.DataSetNameBean;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import static javax.servlet.SessionTrackingMode.URL;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -51,20 +49,26 @@ public class IndexServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String url = "/dashboard.jsp";
+            throws ServletException, IOException 
+    {
+        String url = "/dashboard.jsp";        
         
         URL fileUrl = this.getServletContext().getResource("/datasources");
         File dataDir = new File(fileUrl.getPath());
         if (dataDir.isDirectory())
         {
-            File[] datasources = dataDir.listFiles();
-            request.setAttribute("datasources", datasources);     
-            
-            
-        }        
-        
-        request.setAttribute("test", "Test String");
+            File[] fileList = dataDir.listFiles();
+            DataSetNameBean[] datasources = 
+                    new DataSetNameBean[fileList.length];
+            for (int i = 0; i < fileList.length; i++)
+            {
+                datasources[i] = new DataSetNameBean();
+                datasources[i].setFilePath(fileList[i].getAbsolutePath());
+                datasources[i].setName(fileList[i].getName());
+                datasources[i].stripExtension();
+            }            
+            request.setAttribute("datasources", datasources);               
+        }
         
         this.getServletContext().
                 getRequestDispatcher(url).

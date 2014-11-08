@@ -16,28 +16,43 @@
         <title>JSP Page</title>
         <script type="text/javascript">            
             $(function() {
-               $('#tabs').tabs(); 
-               $('#dataSrcSelect').selectmenu();
+                $('#tabs').tabs(); 
+                $( "input[name='datasource']" ).button();
+                $("#nextToAlgButton").button();
+               
+                $("#nextToAlgButton").click(function() {
+                    var selected = $("#tabs").tabs("option", "selected");
+                    $("#tabs").tabs("option", "selected", selected+1);
+                });
             });
+            
+            
         </script>
 
     </head>
     <body>
         <div id="tabs" style="width: 95%;">
             <ul>
-                <li><a href="#tabs-1">Data Source</a></li>
-                <li><a href="#tabs-2">Algorithms</a></li>
-                <li><a href="#tabs-3">Results</a></li>
+                <li><a href="#dataSrcTab">Data Source</a></li>
+                <li><a href="#algorithmTab">Algorithms</a></li>
+                <li><a href="#resultsTab">Results</a></li>
             </ul>
-            <div id="tabs-1" style="width: 100%;">
-                <div style="width: 25%">
-                    <select id="dataSrcSelect" style="width: 100%">
-                        <c:forEach var="item" items="${datasources}">
-                            <option value='${item.name}'>${item.name}</option>
-                        </c:forEach>
-                    </select>
+            <div id="dataSrcTab">
+                <div style="width: 100%; text-align: center;">
+                    <form>
+                    <c:forEach var="item" items="${datasources}">
+                        <div id="Test1" style="width: 30%; display: inline-block;">
+                            <input type="radio" name="datasource" id="${item.name}radio" value="${item.filePath}"><label for="${item.name}radio" style="width: 100%;">${item.name}</label>
+                        </div>
+                    </c:forEach>   
+                    </form>
+                </div>
+                <div style="width: 100%; text-align: center; padding-top: 1em;">
+                    <a id="nextToAlgButton">Next</a>
                 </div>
             </div>
+            <div id="algorithmTab"></div>
+            <div id="resultsTab"></div>
         </div>
     </body>
 </html>

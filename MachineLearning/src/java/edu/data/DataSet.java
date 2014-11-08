@@ -53,7 +53,7 @@ public class DataSet
                     newAttributes.add(this.getFloat(attributes[i]));
                 }
                 patterns.add(
-                        Pattern.getPattern((Float[])newAttributes.toArray()));
+                        Pattern.getPattern((Double[])newAttributes.toArray()));
             }
             
         }

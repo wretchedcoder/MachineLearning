@@ -10,12 +10,12 @@ package edu.data;
  *
  * @author Lee
  */
-public class DataSetNameBean 
+public class DataSetMetaBean 
 {
     private String filePath;
     private String name;
     
-    public DataSetNameBean()
+    public DataSetMetaBean()
     {
         
     }

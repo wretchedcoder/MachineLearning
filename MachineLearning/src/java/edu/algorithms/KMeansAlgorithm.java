@@ -6,10 +6,13 @@
 
 package edu.algorithms;
 
+import edu.data.AlgorithmMetaBean;
 import edu.data.AlgorithmResults;
 import edu.data.DataSet;
 import edu.data.Pattern;
-import java.util.Dictionary;
+import java.util.ArrayList;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -17,14 +20,28 @@ import java.util.Dictionary;
  */
 public class KMeansAlgorithm implements AlgorithmInterface
 {
+    public static AlgorithmMetaBean getMetaData()
+    {
+        AlgorithmMetaBean bean = new AlgorithmMetaBean();
+        bean.setName("K-Means");
+        
+        ArrayList<String> optionNames = new ArrayList<>();
+        ArrayList<String> optionHtml = new ArrayList<>();
+        
+        optionNames.add("Clusters");
+        optionHtml.add("<input ");
+        
+        return bean;
+    }
+    
     @Override
-    public AlgorithmResults executeAlgorithm(DataSet dataSet, Dictionary<String, Object> options) 
+    public HttpServletResponse executeAlgorithm(DataSet dataSet, HttpServletRequest request) 
     {
         // Get Starting Time
         long startTime = System.currentTimeMillis();
         
         // Initialize Centroids
-        int clusters = (Integer)options.get("clusters");
+        int clusters = Integer.parseInt(request.getParameter("clusters"));
         Pattern[] centroids = new Pattern[clusters];
         DataSet[] regions = new DataSet[clusters];
         for (int i = 0; i < centroids.length; i++)
@@ -32,7 +49,8 @@ public class KMeansAlgorithm implements AlgorithmInterface
             centroids[i] = dataSet.getPattern(i);
         }
         
-        int maxIterations  = (Integer)options.get("maxIterations");
+        int maxIterations  = Integer.parseInt(
+                request.getParameter("maxIterations"));
         int iterations = 0;
         boolean centroidsChanged = true;
         while (iterations < maxIterations

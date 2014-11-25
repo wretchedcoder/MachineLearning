@@ -6,9 +6,9 @@
 
 package edu.algorithms;
 
-import edu.data.AlgorithmResults;
 import edu.data.DataSet;
-import java.util.Dictionary;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -16,6 +16,6 @@ import java.util.Dictionary;
  */
 public interface AlgorithmInterface 
 {
-    public AlgorithmResults executeAlgorithm(DataSet dataSource, 
-            Dictionary<String, Object> options);
+    public HttpServletResponse executeAlgorithm(DataSet dataSet, 
+            HttpServletRequest request);
 }

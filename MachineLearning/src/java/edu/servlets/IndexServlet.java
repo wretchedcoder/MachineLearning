@@ -7,7 +7,7 @@
 package edu.servlets;
 
 
-import edu.data.DataSetNameBean;
+import edu.data.DataSetMetaBean;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -58,11 +58,11 @@ public class IndexServlet extends HttpServlet {
         if (dataDir.isDirectory())
         {
             File[] fileList = dataDir.listFiles();
-            DataSetNameBean[] datasources = 
-                    new DataSetNameBean[fileList.length];
+            DataSetMetaBean[] datasources = 
+                    new DataSetMetaBean[fileList.length];
             for (int i = 0; i < fileList.length; i++)
             {
-                datasources[i] = new DataSetNameBean();
+                datasources[i] = new DataSetMetaBean();
                 datasources[i].setFilePath(fileList[i].getAbsolutePath());
                 datasources[i].setName(fileList[i].getName());
                 datasources[i].stripExtension();

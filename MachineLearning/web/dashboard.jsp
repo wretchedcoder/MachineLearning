@@ -43,7 +43,9 @@
         </script>
     </head>
     <body>
-        <form action="./Processing" method="POST">
+        <form id="testForm" action="/MachineLearning/Processing" method="post">
+
+        
         <div id="tabs" style="width: 95%;">
             <ul>
                 <li><a href="#dataSrcTab">Data Source</a></li>
@@ -69,7 +71,7 @@
                 </div>                 
             </div> <!-- End of Algorithm Tab -->
             <div id="resultsTab">
-                <button id="processButton" type="submit">Process</button>
+                <input id="processButton" type="submit" value="Process">
             </div>
         </div>
         </form>

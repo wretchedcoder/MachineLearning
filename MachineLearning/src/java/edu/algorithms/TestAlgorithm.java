@@ -15,8 +15,21 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Lee
  */
-public interface AlgorithmInterface 
-{
+public class TestAlgorithm implements AlgorithmInterface {
+
+    public static TestAlgorithm getTestAlgorithm()
+    {
+        return new TestAlgorithm();
+    }
+    
+    @Override
     public AlgorithmResults executeAlgorithm(DataSet dataSet, 
-            HttpServletRequest request, HttpServletResponse response);
+            HttpServletRequest request, HttpServletResponse response) {
+        
+        AlgorithmResults results = new AlgorithmResults();
+        results.setIterations("5");
+        
+        return results;
+    } // End of executeAlgorithm()
+    
 }

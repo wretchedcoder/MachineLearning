@@ -12,5 +12,20 @@ package edu.data;
  */
 public class AlgorithmResults 
 {
+    private String iterations = "";
+    
+    public AlgorithmResults()
+    {
+        
+    }
+
+    public String getIterations() {
+        return iterations;
+    }
+
+    public void setIterations(String iterations) {
+        this.iterations = iterations;
+    }
+    
     
 }

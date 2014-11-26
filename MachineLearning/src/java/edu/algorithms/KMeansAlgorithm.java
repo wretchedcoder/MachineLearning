@@ -35,7 +35,7 @@ public class KMeansAlgorithm implements AlgorithmInterface
     }
     
     @Override
-    public HttpServletResponse executeAlgorithm(DataSet dataSet, HttpServletRequest request) 
+    public AlgorithmResults executeAlgorithm(DataSet dataSet, HttpServletRequest request, HttpServletResponse response) 
     {
         // Get Starting Time
         long startTime = System.currentTimeMillis();
@@ -95,8 +95,6 @@ public class KMeansAlgorithm implements AlgorithmInterface
         // Get Stop Time and Calculate Elapsed Time
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
-        
-        
         
         return null;
     }

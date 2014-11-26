@@ -6,8 +6,11 @@
 
 package edu.servlets;
 
+import edu.algorithms.TestAlgorithm;
+import edu.data.AlgorithmResults;
 import edu.data.DataSet;
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -21,6 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "ProcessingServlet", urlPatterns = {"/Processing"})
 public class ProcessingServlet extends HttpServlet {
 
+    // Algorithms
+    private TestAlgorithm testAlgorithm = null;
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -51,11 +57,24 @@ public class ProcessingServlet extends HttpServlet {
         // 1. Data Source
         // 2. Algorithm(s)
         // 3. Each Algorithm's Options
-        String dataSourceName = (String) request.getAttribute("datasource");
+        String dataSourceName = (String) request.getParameter("datasource");
         
         DataSet dataSource = DataSet.getDataSet(dataSourceName);
         
+        ArrayList<AlgorithmResults> algorithmResults = 
+                new ArrayList<AlgorithmResults>();
         
+        String testAlgorithmEnabled = (String) request.getParameter("enableTestAlg");
+        if (testAlgorithmEnabled.equals("on"))
+        {
+            algorithmResults.add(
+                    TestAlgorithm.getTestAlgorithm()
+                    .executeAlgorithm(dataSource, request, response));
+        }
+        request.setAttribute("algorithmResults", algorithmResults);
+        
+        request.getServletContext().getRequestDispatcher("/results.jsp")
+                .forward(request, response);
     }
 
     /**

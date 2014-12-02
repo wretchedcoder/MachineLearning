@@ -6,6 +6,7 @@
 
 package edu.servlets;
 
+import edu.algorithms.KMeansAlgorithm;
 import edu.algorithms.TestAlgorithm;
 import edu.data.AlgorithmResults;
 import edu.data.DataSet;
@@ -62,19 +63,38 @@ public class ProcessingServlet extends HttpServlet {
         DataSet dataSource = DataSet.getDataSet(dataSourceName);
         
         ArrayList<AlgorithmResults> algorithmResults = 
-                new ArrayList<AlgorithmResults>();
+                new ArrayList<>();
         
-        String testAlgorithmEnabled = (String) request.getParameter("enableTestAlg");
-        if (testAlgorithmEnabled.equals("on"))
+        try
         {
-            algorithmResults.add(
-                    TestAlgorithm.getTestAlgorithm()
-                    .executeAlgorithm(dataSource, request, response));
+            String testAlgorithmEnabled = (String) request.getParameter("enableKmeansAlg");
+            if (testAlgorithmEnabled.equals("on"))
+            {
+                algorithmResults.add(
+                        KMeansAlgorithm.getKMeansAlgorithm()
+                        .executeAlgorithm(dataSource, request, response));
+            }
         }
-        request.setAttribute("algorithmResults", algorithmResults);
+        catch (Exception e)
+        {
+            System.out.println(e.getMessage());
+        }
         
-        request.getServletContext().getRequestDispatcher("/results.jsp")
-                .forward(request, response);
+        AlgorithmResults newResults = new AlgorithmResults();
+        newResults.setAlgorithmName("TestAlgorithm");
+        algorithmResults.add(newResults);
+        
+        StringBuffer json = new StringBuffer();
+        json.append("[");
+        for (int i = 0; i < algorithmResults.size(); i++)
+        {
+            json.append(algorithmResults.get(i).toJson());
+            json.append(",");
+        }     
+        json.deleteCharAt(json.length() - 1);
+        json.append("]");
+        
+        response.getWriter().print(json);
     }
 
     /**

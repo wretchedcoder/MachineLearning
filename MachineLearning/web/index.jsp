@@ -16,10 +16,10 @@
             });
         </script>
     </head>
-    <body>
+    <body style="background-color: #F0EAD6;">
         <div align="center">
-            <h1>Machine Learning Demos</h1>
-            <a href="dashboard">Go!</a>            
+            <h1>Machine Learning Algorithms</h1>
+            <a href="dashboard">Start</a>            
         </div>
     </body>    
 </html>

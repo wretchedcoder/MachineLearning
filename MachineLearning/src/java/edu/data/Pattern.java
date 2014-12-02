@@ -6,6 +6,8 @@
 
 package edu.data;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 
 /**
@@ -68,7 +70,8 @@ public class Pattern
                     + patternTwo.getAttribute(i);
             values.add(value);
         }
-        return new Pattern((Double[])values.toArray());
+        Double[] newPattern = new Double[values.size()];
+        return new Pattern(values.toArray(newPattern));
     }
     
     public static Pattern divide(Pattern pattern, double scalar)
@@ -78,6 +81,14 @@ public class Pattern
             pattern.attributes.set(i, pattern.attributes.get(i) / scalar);
         }
         return pattern;
+    }
+    
+    public void initAttributes(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            this.attributes.add(0.0);
+        }
     }
     
     public double getAttribute(int i)
@@ -99,6 +110,16 @@ public class Pattern
         return this.attributes;
     }
     
+    public void setAttributes(ArrayList<Double> attributes)
+    {
+        this.attributes = attributes;
+    }
+    
+    public int getDimensionality()
+    {
+        return this.attributes.size();
+    }
+    
     @Override
     public boolean equals(Object obj)
     {
@@ -115,5 +136,13 @@ public class Pattern
             }
         }
         return true;
+    }
+    
+    public String toJson()
+    {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        String json = gson.toJson(this);
+        return json;
     }
 }

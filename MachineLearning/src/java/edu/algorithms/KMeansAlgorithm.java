@@ -29,8 +29,8 @@ public class KMeansAlgorithm implements AlgorithmInterface
     public AlgorithmResults executeAlgorithm(DataSet dataSet, HttpServletRequest request, HttpServletResponse response) 
     {
         // Get All K-Means Options
-        int clusters = Integer.parseInt(request.getParameter("clusterOption"));
-        long maxWaitTime = Long.parseLong(request.getParameter("maxTimeOption"));
+        int clusters = Integer.parseInt(request.getParameter("kmeansClusterOption"));
+        long maxWaitTime = Long.parseLong(request.getParameter("kmeansMaxTimeOption"));
         maxWaitTime *= 1000;
         
         // Time Variables
@@ -66,7 +66,7 @@ public class KMeansAlgorithm implements AlgorithmInterface
                 double thisDistance = 0.0;
                 for (int j = 0; j < centroids.length; j++)
                 {
-                    thisDistance = Pattern.getNorm(2.00, 
+                    thisDistance = AlgorithmUtil.getNorm(2.00, 
                             dataSet.getPattern(i), centroids[j]);
                     if (minCluster == -1
                             || thisDistance < minDistance)

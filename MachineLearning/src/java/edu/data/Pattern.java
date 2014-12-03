@@ -47,19 +47,7 @@ public class Pattern
         }
     }
     
-    public static double getNorm(double p, Pattern fromPattern, Pattern toPattern)
-    {
-        double normValue = 0.0f;
-        double attrDistance = 0.0f;
-        for (int i = 0; i < fromPattern.getAttributes().size(); i++)
-        {
-            attrDistance = fromPattern.getAttribute(i) - toPattern.getAttribute(i);
-            attrDistance = Math.pow(attrDistance, p);
-            normValue += attrDistance;
-        }
-        normValue = Math.sqrt(normValue);        
-        return normValue;
-    }
+    
     
     public static Pattern addPatterns(Pattern patternOne, Pattern patternTwo)
     {

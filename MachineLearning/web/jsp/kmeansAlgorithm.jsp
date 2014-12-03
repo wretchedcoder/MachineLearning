@@ -7,12 +7,12 @@
 <div style="margin: 0 auto;">
 <div>
     <div style="width: 37%; text-align: right;">
-        <label for="clusterOption">Clusters</label>
-        <input id="clusterOption" name="clusterOption" type="text" value="2" class="algClusters">
+        <label for="kmeansClusterOption">Clusters</label>
+        <input id="kmeansClusterOption" name="kmeansClusterOption" type="text" value="2" class="algClusters">
     </div>
     <div style="width: 37%; text-align: right;">
-        <label for="maxTimeOption">Maximum Wait Time (seconds)</label>
-        <input id="maxTimeOption" name="maxTimeOption" type="text" value="10" class="algMaxTime">
+        <label for="kmeansMaxTimeOption">Maximum Wait Time (seconds)</label>
+        <input id="kmeansMaxTimeOption" name="kmeansMaxTimeOption" type="text" value="10" class="algMaxTime">
     </div>
 </div>
 </div>  <!-- Outer Option DIV --> 

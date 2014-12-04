@@ -24,6 +24,12 @@ public class Pattern
         return pattern;
     }
     
+    public static Pattern getPattern(int d)
+    {
+        Pattern pattern = new Pattern(d);
+        return pattern;
+    }
+    
     public static Pattern getPattern(Double[] newAttributes)
     {
         Pattern pattern = new Pattern(newAttributes);
@@ -34,6 +40,12 @@ public class Pattern
     {
         this.attributes = new ArrayList<>();
     }    
+    
+    private Pattern(int d)
+    {
+        this.attributes = new ArrayList<>();
+        this.initAttributes(d);
+    }  
     
     private Pattern(Double[] newAttributes)
     {
@@ -49,27 +61,9 @@ public class Pattern
     
     
     
-    public static Pattern addPatterns(Pattern patternOne, Pattern patternTwo)
-    {
-        ArrayList<Double> values = new ArrayList<>();
-        for (int i = 0; i < patternOne.getAttributes().size(); i++)
-        {
-            double value = patternOne.getAttribute(i) 
-                    + patternTwo.getAttribute(i);
-            values.add(value);
-        }
-        Double[] newPattern = new Double[values.size()];
-        return new Pattern(values.toArray(newPattern));
-    }
     
-    public static Pattern divide(Pattern pattern, double scalar)
-    {
-        for (int i = 0; i < pattern.getAttributes().size(); i++)
-        {
-            pattern.attributes.set(i, pattern.attributes.get(i) / scalar);
-        }
-        return pattern;
-    }
+    
+    
     
     public void initAttributes(int count)
     {

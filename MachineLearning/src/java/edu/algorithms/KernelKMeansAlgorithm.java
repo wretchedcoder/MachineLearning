@@ -6,11 +6,9 @@
 
 package edu.algorithms;
 
-import edu.data.AlgorithmMetaBean;
 import edu.data.AlgorithmResults;
 import edu.data.DataSet;
 import edu.data.Pattern;
-import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,19 +16,25 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Lee
  */
-public class KMeansAlgorithm implements AlgorithmInterface
+public class KernelKMeansAlgorithm implements AlgorithmInterface
 {
-    public static KMeansAlgorithm getKMeansAlgorithm()
+    public static KernelKMeansAlgorithm getKernelKMeansAlgorithm()
     {
-        return new KMeansAlgorithm();
+        return new KernelKMeansAlgorithm();
+    }
+    
+    public KernelKMeansAlgorithm()
+    {
+        
     }
     
     @Override
     public AlgorithmResults executeAlgorithm(DataSet dataSet, HttpServletRequest request, HttpServletResponse response) 
     {
-        // Get All K-Means Options
-        int clusters = Integer.parseInt(request.getParameter("kmeansClusterOption"));
-        long maxWaitTime = Long.parseLong(request.getParameter("kmeansMaxTimeOption"));
+        // Get All Kernel K-Means Options
+        int clusters = Integer.parseInt(request.getParameter("kernelKMmeansClusterOption"));
+        long maxWaitTime = Long.parseLong(request.getParameter("kernelKMeansMaxTimeOption"));
+        String kernel = request.getParameter("kernelKMmeansKernel");
         maxWaitTime *= 1000;
         
         // Time Variables

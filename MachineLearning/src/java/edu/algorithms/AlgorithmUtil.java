@@ -6,7 +6,9 @@
 
 package edu.algorithms;
 
+import edu.data.DataSet;
 import edu.data.Pattern;
+import java.util.ArrayList;
 
 /**
  *
@@ -74,5 +76,61 @@ public class AlgorithmUtil
             pattern.setAttribute(i, pattern.getAttribute(i) * scalar);
         }
         return pattern;
+    }
+    
+    public static String[] convertRegionsToJson(DataSet[] regions)
+    {
+        String[] jsonRegions = new String[regions.length];
+        
+        for(int i = 0; i < regions.length; i++)
+        {
+            jsonRegions[i] = regions[i].toJson();
+        }
+        
+        return jsonRegions;
+    }
+    
+    public static String[] convertCentroidsToJson(Pattern[] centroids)
+    {
+        String[] jsonRegions = new String[centroids.length];
+        
+        for(int i = 0; i < centroids.length; i++)
+        {
+            jsonRegions[i] = centroids[i].toJson();
+        }
+        
+        return jsonRegions;
+    }
+    
+    public static double getManhattanDistance(Pattern patternOne, Pattern patternTwo)
+    {
+        double distance = 0.00;
+        for (int i = 0; i < patternOne.getDimensionality(); i++)
+        {
+            distance += Math.abs(patternOne.getAttribute(i) - patternTwo.getAttribute(i));
+        }
+        return distance;
+    }
+    
+    public static Pattern divide(Pattern pattern, double scalar)
+    {
+        for (int i = 0; i < pattern.getAttributes().size(); i++)
+        {
+            pattern.setAttribute(i, pattern.getAttribute(i) / scalar);
+        }
+        return pattern;
+    }
+    
+    public static Pattern addPatterns(Pattern patternOne, Pattern patternTwo)
+    {
+        ArrayList<Double> values = new ArrayList<>();
+        for (int i = 0; i < patternOne.getAttributes().size(); i++)
+        {
+            double value = patternOne.getAttribute(i) 
+                    + patternTwo.getAttribute(i);
+            values.add(value);
+        }
+        Double[] newPattern = new Double[values.size()];
+        return Pattern.getPattern(values.toArray(newPattern));
     }
 }

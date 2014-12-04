@@ -8,6 +8,7 @@ package edu.data;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.util.HashMap;
 
 /**
  *
@@ -21,6 +22,7 @@ public class AlgorithmResults
     private String elapsedTime = "";
     private String[] regions;
     private String[] centroids;
+    private HashMap<String,String> items;
     
     public AlgorithmResults()
     {
@@ -85,5 +87,27 @@ public class AlgorithmResults
         this.centroids = centroids;
     }
     
+    public HashMap<String,String> getItems()
+    {
+        if (items == null)
+        {
+            items = new HashMap<>();
+        }
+        return items;
+    }
+    
+    public void setItems(HashMap<String,String> items)
+    {
+        this.items = items;
+    }
+    
+    public void addItem(String key, String value)
+    {
+        if (items == null)
+        {
+            items = new HashMap<>();
+        }
+        items.put(key, value);
+    }
     
 }

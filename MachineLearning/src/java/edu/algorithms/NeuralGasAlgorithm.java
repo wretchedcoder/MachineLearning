@@ -17,37 +17,41 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Lee
  */
-public class SomAlgorithm implements AlgorithmInterface 
+public class NeuralGasAlgorithm implements AlgorithmInterface 
 {
     private static Random random;
-    private double minSigma = 1.00;
-    private double maxSigma = 1.00;
     private double minEpsilon = 1.00;
     private double maxEpsilon = 1.00;
     private long maxTimeStep = 1;
+    private double decay = 1.00;
     
     static
     {
         random = new Random();
     }
     
-    public static SomAlgorithm getSomAlgorithm()
+    public static NeuralGasAlgorithm getNeuralGasAlgorithm()
     {
-        return new SomAlgorithm();
+        return new NeuralGasAlgorithm();
     }
     
+    private NeuralGasAlgorithm()
+    {
+        
+    }
+
     @Override
     public AlgorithmResults executeAlgorithm(DataSet dataSet, 
-            HttpServletRequest request, HttpServletResponse response) {
+            HttpServletRequest request, HttpServletResponse response) 
+    {
         // Get All Options
-        int clusters = Integer.parseInt(request.getParameter("somClusterOption"));
-        long maxWaitTime = Long.parseLong(request.getParameter("somMaxTimeOption"));
+        int clusters = Integer.parseInt(request.getParameter("neuralGasClusterOption"));
+        long maxWaitTime = Long.parseLong(request.getParameter("neuralGasMaxTimeOption"));
         maxWaitTime *= 1000;
-        this.maxTimeStep = Integer.parseInt(request.getParameter("somMaxTimeStep"));
-        this.minEpsilon = Double.parseDouble(request.getParameter("somMinEpsilon"));
-        this.maxEpsilon = Double.parseDouble(request.getParameter("somMaxEpsilon"));
-        this.minSigma = Double.parseDouble(request.getParameter("somMinSigma"));
-        this.maxSigma = Double.parseDouble(request.getParameter("somMaxSigma"));
+        this.maxTimeStep = Integer.parseInt(request.getParameter("neuralGasMaxTimeStep"));
+        this.minEpsilon = Double.parseDouble(request.getParameter("neuralGasMinEpsilon"));
+        this.maxEpsilon = Double.parseDouble(request.getParameter("neuralGasMaxEpsilon"));
+        this.decay = Double.parseDouble(request.getParameter("neuralGasDecay"));
         
         // Initialize Centroids Codebook
         Pattern[] centroids = new Pattern[clusters];
@@ -65,9 +69,12 @@ public class SomAlgorithm implements AlgorithmInterface
             // Get Random Pattern
             int x = random.nextInt(dataSet.getPatterns().size());
             
-            // Get Closest Centroid
-            Pattern closestCentroid = AlgorithmUtil.getClosestCentroid(1.00, 
-                    dataSet.getPattern(x), centroids);
+            double[] rank = new double[clusters];
+            
+            for (int i = 0; i < clusters; i++)
+            {
+                rank[i] = AlgorithmUtil.getNorm(2.00, dataSet.getPattern(x), centroids[i]);
+            }
             
             // Adapt each codevector
             for (int i = 0; i < clusters; i++)
@@ -75,7 +82,7 @@ public class SomAlgorithm implements AlgorithmInterface
                 centroids[i] = AlgorithmUtil.subtract(
                         dataSet.getPattern(x), centroids[i]);
                 centroids[i] = AlgorithmUtil.multiply(centroids[i], 
-                        this.h(closestCentroid, dataSet.getPattern(x),t));
+                        this.h(rank[i]));
                 centroids[i] = AlgorithmUtil.multiply(centroids[i], 
                         this.epsilon(t));
             }
@@ -96,10 +103,9 @@ public class SomAlgorithm implements AlgorithmInterface
             regions[index].addPattern(dataSet.getPattern(i));
         }
         
-        // Output Results
         AlgorithmResults algResults = new AlgorithmResults();
-        algResults.setAlgorithmName("SOM Results");
-        algResults.setDimensions(Integer.toString(centroids[0].getDimensionality()));
+        algResults.setAlgorithmName("Neural Gas Results");
+        algResults.addItem("Dimensions",Integer.toString(centroids[0].getDimensionality()));
         algResults.setRegions(
                 AlgorithmUtil.convertRegionsToJson(regions));
         algResults.setCentroids(
@@ -120,31 +126,8 @@ public class SomAlgorithm implements AlgorithmInterface
         return value;
     }
     
-    private double sigma(int t)
+    private double h(double p)
     {
-        double value = 1.00;
-        if (t == 0)
-        {
-            return minSigma;
-        }
-        
-        value = minSigma * Math.pow((maxSigma / minSigma), (t / this.maxTimeStep));
-        
-        return value;
+        return Math.exp((-1.00 * p) / this.decay);
     }
-    
-    private double h(Pattern r, Pattern s, int t)
-    {
-        double top = AlgorithmUtil.getManhattanDistance(r, s);
-        top = Math.pow(top, 2.00);
-        
-        double bottom = 2 * Math.pow(this.sigma(t), 2.00);
-        
-        top = top / bottom;
-        top *= -1.00;
-        
-        double value = Math.exp(top);              
-        return value;
-    }
-    
 }

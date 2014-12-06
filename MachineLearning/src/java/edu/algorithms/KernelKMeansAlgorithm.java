@@ -9,6 +9,8 @@ package edu.algorithms;
 import edu.data.AlgorithmResults;
 import edu.data.DataSet;
 import edu.data.Pattern;
+import edu.kernel.IKernel;
+import edu.kernel.KernelBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -34,13 +36,15 @@ public class KernelKMeansAlgorithm implements AlgorithmInterface
         // Get All Kernel K-Means Options
         int clusters = Integer.parseInt(request.getParameter("kernelKMmeansClusterOption"));
         long maxWaitTime = Long.parseLong(request.getParameter("kernelKMeansMaxTimeOption"));
-        String kernel = request.getParameter("kernelKMmeansKernel");
+        String kernelOpt = request.getParameter("kernelKMmeansKernel");
         maxWaitTime *= 1000;
+        
+        int d = dataSet.getPatterns().size();
         
         // Time Variables
         long startTime = System.currentTimeMillis();
         long stopTime = 0L;
-        long elapsedTime = 0L;
+        long elapsedTime = 0L;    
         
         // Initialize Centroids
         Pattern[] centroids = new Pattern[clusters];
@@ -50,17 +54,30 @@ public class KernelKMeansAlgorithm implements AlgorithmInterface
             centroids[i] = dataSet.getPattern(i);
         }
         
+        // Get Variance for Gaussian Kernel
+        double variance = 0.00;
+        if (kernelOpt.equals("gaussian"))
+        {
+            Pattern meanPattern = Pattern.getPattern(d);            
+            meanPattern = AlgorithmUtil.getMeanForDataSet(dataSet);
+            variance = AlgorithmUtil.getVarianceForDataSet(meanPattern, dataSet);
+        }
+        
+        // Get Kernel
+        request.setAttribute("variance", variance);
+        IKernel kernel = KernelBuilder.getKernel(request);
+        
         int iterations = 0;
-        boolean centroidsChanged = true;
+        boolean centroidsChanged = false;
         while (elapsedTime <= maxWaitTime
-                && centroidsChanged) 
+                && !centroidsChanged) 
         {
             // Initialize or Clear Regions
             for (int i = 0; i < centroids.length; i++)
             {
                 regions[i] = null;
                 regions[i] = DataSet.getDataSet();
-            }
+            }           
             
             centroidsChanged = false;
             for (int i = 0; i < dataSet.getPatterns().size(); i++)
@@ -70,7 +87,7 @@ public class KernelKMeansAlgorithm implements AlgorithmInterface
                 double thisDistance = 0.0;
                 for (int j = 0; j < centroids.length; j++)
                 {
-                    thisDistance = AlgorithmUtil.getNorm(2.00, 
+                    thisDistance = AlgorithmUtil.getKernelDistance(kernel, 
                             dataSet.getPattern(i), centroids[j]);
                     if (minCluster == -1
                             || thisDistance < minDistance)
@@ -103,7 +120,7 @@ public class KernelKMeansAlgorithm implements AlgorithmInterface
         } // while
         
         AlgorithmResults algResults = new AlgorithmResults();
-        algResults.setAlgorithmName("K-Means Results");
+        algResults.setAlgorithmName("Kernel K-Means Results");
         algResults.addItem("Dimensions", Integer.toString(centroids[0].getDimensionality()));
         algResults.addItem("Iterations", Integer.toString(iterations));
         algResults.addItem("Elapsed Time", Double.toString(elapsedTime / 1000.0));        

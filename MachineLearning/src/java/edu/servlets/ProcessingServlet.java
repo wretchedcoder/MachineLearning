@@ -10,7 +10,9 @@ import edu.algorithms.KMeansAlgorithm;
 import edu.algorithms.TestAlgorithm;
 import edu.data.AlgorithmResults;
 import edu.data.DataSet;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -59,8 +61,11 @@ public class ProcessingServlet extends HttpServlet {
         // 2. Algorithm(s)
         // 3. Each Algorithm's Options
         String dataSourceName = (String) request.getParameter("datasource");
+        URL fileUrl = this.getServletContext().getResource("/datasources");
+        File dataFile = new File(fileUrl.getPath());
         
-        DataSet dataSource = DataSet.getDataSet(dataSourceName);
+        DataSet dataSource = DataSet.getDataSet();
+        dataSource.loadDataSet(dataFile);
         
         ArrayList<AlgorithmResults> algorithmResults = 
                 new ArrayList<>();

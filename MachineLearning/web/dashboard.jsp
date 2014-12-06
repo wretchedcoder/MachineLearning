@@ -14,9 +14,78 @@
         <script src="./javascript/jquery-ui/external/jquery/jquery.js"></script>
         <script src="./javascript/jquery-ui/jquery-ui.min.js"></script>
         <script src="./javascript/canvasjs/jquery.canvasjs.min.js"></script>
+        <script src="./javascript/dojo/dojo/dojo.js" data-dojo-config="async: true"></script>
+        <script src="./javascript/dojo/digit/digit.js" data-dojo-config="async: true"></script>
+        <script src="./javascript/dojo/dojox/dojox.js" data-dojo-config="async: true"></script>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
         <script type="text/javascript">    
+            
+            require(["dojox/charting/Chart", 
+                    "dojox/charting/axis2d/Default", 
+                    "dojox/charting/plot2d/Scatter", 
+                    "dojo/ready"],
+            function(Chart, Default, Lines, ready){
+                function makeChart(name, data){
+                    var chart1 = new Chart(name + "Chart");
+                    chart1.addPlot("default", {type: "Scatter"});
+                    chart1.addAxis("x", {fixLower: "major", fixUpper: "major", includeZero: true, max: 25});
+                    chart1.addAxis("y", {vertical: true, fixLower: "major", fixUpper: "major", includeZero: true, max: 25});
+                    chart1.addSeries("Series", data);
+                    chart1.render();
+                    
+                }
+            
+            
+            $(document).ready(function() {
+                $.get("./datasets", function(data){
+                    alert(data);
+                    var obj = JSON.parse(data);
+                    var i;
+                    for (i = 0; i < obj.datasources.length; i++)
+                    {
+                        var newDiv = document.createElement("div");
+                        $(newDiv).attr("style","width: 30%; display: inline-block; margin: 1px;");
+                        $('#dataSourcesDiv').append(newDiv);
+                        
+                        var inputElement = document.createElement("input");
+                        $(inputElement).attr("id", obj.datasources[i].name + "DataSrc");
+                        $(inputElement).attr("value",obj.datasources[i].path);
+                        $(inputElement).attr("name","datasource");
+                        $(inputElement).attr("type","radio");
+                        $(inputElement).attr("style","width: 100%;");
+                        $(newDiv).append(inputElement);
+                        
+                        var labelElement = document.createElement("label");
+                        $(labelElement).attr("for", obj.datasources[i].name + "DataSrc");
+                        $(labelElement).html(obj.datasources[i].name);
+                        $(labelElement).attr("style","width: 100%;");
+                        $(newDiv).append(labelElement);
+                        
+                        var chartCanvas = document.createElement("div");
+                        $(chartCanvas).attr("id",obj.datasources[i].name + "Chart");
+                        $(chartCanvas).attr("style",
+                          "width: 100%; height: 240px; margin: 10px auto 0px auto;");
+                        $(newDiv).append(chartCanvas);
+                        
+                        var dataObj = new Array();
+                        var j;
+                        for (j = 0; j < obj.datasources[i].patterns.length; j++)
+                        {
+                            var tst = obj.datasources[i].patterns[j].attributes[0];
+                            dataObj.push({x: obj.datasources[i].patterns[j].attributes[0],
+                              y: obj.datasources[i].patterns[j].attributes[1],
+                              stroke: "green"});
+                        }                        
+                        makeChart(obj.datasources[i].name, dataObj);             
+                        
+                    } // End of DataSources Loop
+                    
+                    $( "input[name='datasource']" ).button();
+                });
+            });
+            });
+            
             function parseData (jsonData)
             {
                 $('#resultsDiv').remove();
@@ -61,7 +130,7 @@
                 
                 
                 $('#tabs').tabs(); 
-                $( "input[name='datasource']" ).button();
+                
                 $("#nextToAlgButton").button();
                 $("#nextToProcessButton").button();
                 $("#processButton").button();
@@ -132,12 +201,14 @@
         <form id="processForm" action="./Processing" method="post">
         <div id="dataSrcTab" class="navTab">
             <h2>Data Sources</h2>
-            <div style="width: 100%;">                    
+            <div id="dataSourcesDiv" style="width: 100%;">  
+                <!--
                 <c:forEach var="item" items="${datasources}">
                     <div id="Test1" style="width: 30%; display: inline-block;">
                         <input type="radio" name="datasource" id="${item.name}radio" value="${item.filePath}"><label for="${item.name}radio" style="width: 100%;">${item.name}</label>
                     </div>
                 </c:forEach>   
+                -->
             </div>
         </div>
         <div id="algorithmTab" class="navTab">

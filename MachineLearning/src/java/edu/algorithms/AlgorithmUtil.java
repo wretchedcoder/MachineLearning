@@ -8,6 +8,7 @@ package edu.algorithms;
 
 import edu.data.DataSet;
 import edu.data.Pattern;
+import edu.kernel.IKernel;
 import java.util.ArrayList;
 
 /**
@@ -132,5 +133,84 @@ public class AlgorithmUtil
         }
         Double[] newPattern = new Double[values.size()];
         return Pattern.getPattern(values.toArray(newPattern));
+    }
+    
+    public static double dotProduct(Pattern p1, Pattern p2)
+    {
+        double value = 0.00;
+        int d = p1.getDimensionality();
+        
+        for (int i = 0; i < d; i++)
+        {
+            value += p1.getAttribute(i) * p2.getAttribute(i);
+        }
+        
+        return value;
+    }
+    
+    public static Pattern getMeanForDataSet(DataSet dataSet)
+    {
+        double d = dataSet.getPatterns().size();
+        Pattern meanPattern = Pattern.getPattern((int)d);
+        for (int i = 0; i < d; i++)
+        {
+            meanPattern = AlgorithmUtil.addPatterns(meanPattern, 
+                    dataSet.getPattern(i));
+        }
+        meanPattern = AlgorithmUtil.divide(meanPattern, d);
+        return meanPattern;
+    }
+    
+    public static double getVarianceForDataSet(Pattern meanPattern, 
+            DataSet dataSet)
+    {
+        double value = 0.00;
+        double d = dataSet.getPatterns().size();
+        Pattern sumPattern = Pattern.getPattern((int)d);
+        for (int i = 0; i < d; i++)
+        {
+            value += AlgorithmUtil.getNorm(2.00, meanPattern, 
+                    dataSet.getPattern(i));            
+        }
+        value = value / d;        
+        return value;
+    }
+    
+    public static double getKernelDistance(IKernel kernel, Pattern p1, 
+            Pattern p2)
+    {
+        double value = 0.00;
+        
+        value = kernel.apply(p1, p1) + kernel.apply(p2, p2) 
+                - (2 * kernel.apply(p1, p2));
+        
+        return value;
+    }
+    
+    public static Pattern getKernelClosestCentroid(IKernel kernel,
+            Pattern pattern, Pattern[] centroids)
+    {
+        int index = getKernelClosestCentroidIndex(kernel, pattern, centroids);
+        return centroids[index];
+    }
+    
+    public static int getKernelClosestCentroidIndex(IKernel kernel, 
+            Pattern pattern, Pattern[] centroids)
+    {
+        // Get Closest Centroid to Pattern X
+        int minCluster = -1;
+        double thisDistance = 0;
+        double minDistance = 0;
+        for (int j = 0; j < centroids.length; j++)
+        {
+            thisDistance = AlgorithmUtil.getKernelDistance(kernel, pattern, centroids[j]);
+            if (minCluster == -1
+                    || thisDistance < minDistance)
+            {
+                minDistance = thisDistance;
+                minCluster = j;
+            }
+        }
+        return minCluster;
     }
 }

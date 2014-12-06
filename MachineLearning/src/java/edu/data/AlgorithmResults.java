@@ -17,11 +17,9 @@ import java.util.HashMap;
 public class AlgorithmResults 
 {
     private String algorithmName = "";
-    private String dimensions = "";
-    private String iterations = "";
-    private String elapsedTime = "";
-    private String[] regions;
-    private String[] centroids;
+    private String algorithmId = "";
+    private DataSet[] regions;
+    private Pattern[] centroids;
     private HashMap<String,String> items;
     
     public AlgorithmResults()
@@ -45,45 +43,27 @@ public class AlgorithmResults
         this.algorithmName = algorithmName;
     }
 
-    public String getDimensions() {
-        return dimensions;
+    public String getAlgorithmId() {
+        return algorithmId;
     }
 
-    public void setDimensions(String dimensions) {
-        this.dimensions = dimensions;
+    public void setAlgorithmId(String algorithmId) {
+        this.algorithmId = algorithmId;
     }
     
-    
-
-    public String getIterations() {
-        return iterations;
-    }
-
-    public void setIterations(String iterations) {
-        this.iterations = iterations;
-    }
-
-    public String getElapsedTime() {
-        return elapsedTime;
-    }
-
-    public void setElapsedTime(String elapsedTime) {
-        this.elapsedTime = elapsedTime;
-    }
-
-    public String[] getRegions() {
+    public DataSet[] getRegions() {
         return regions;
     }
 
-    public void setRegions(String[] regions) {
+    public void setRegions(DataSet[] regions) {
         this.regions = regions;
     }
 
-    public String[] getCentroids() {
+    public Pattern[] getCentroids() {
         return centroids;
     }
 
-    public void setCentroids(String[] centroids) {
+    public void setCentroids(Pattern[] centroids) {
         this.centroids = centroids;
     }
     

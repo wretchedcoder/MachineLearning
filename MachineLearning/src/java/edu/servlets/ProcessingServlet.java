@@ -7,6 +7,7 @@
 package edu.servlets;
 
 import edu.algorithms.KMeansAlgorithm;
+import edu.algorithms.SomAlgorithm;
 import edu.algorithms.TestAlgorithm;
 import edu.data.AlgorithmResults;
 import edu.data.DataSet;
@@ -61,7 +62,11 @@ public class ProcessingServlet extends HttpServlet {
         // 2. Algorithm(s)
         // 3. Each Algorithm's Options
         String dataSourceName = (String) request.getParameter("datasource");
-        URL fileUrl = this.getServletContext().getResource("/datasources");
+        URL fileUrl = this.getServletContext().getResource("/datasources/" + dataSourceName);
+        if (fileUrl == null)
+        {
+            System.out.println("NULL");
+        }
         File dataFile = new File(fileUrl.getPath());
         
         DataSet dataSource = DataSet.getDataSet();
@@ -73,10 +78,17 @@ public class ProcessingServlet extends HttpServlet {
         try
         {
             String testAlgorithmEnabled = (String) request.getParameter("enableKmeansAlg");
-            if (testAlgorithmEnabled.equals("on"))
+            if (testAlgorithmEnabled != null && testAlgorithmEnabled.equals("on"))
             {
                 algorithmResults.add(
                         KMeansAlgorithm.getKMeansAlgorithm()
+                        .executeAlgorithm(dataSource, request, response));
+            }
+            testAlgorithmEnabled = (String) request.getParameter("enableSomAlg");
+            if (testAlgorithmEnabled != null && testAlgorithmEnabled.equals("on"))
+            {
+                algorithmResults.add(
+                        SomAlgorithm.getSomAlgorithm()
                         .executeAlgorithm(dataSource, request, response));
             }
         }
@@ -84,10 +96,6 @@ public class ProcessingServlet extends HttpServlet {
         {
             System.out.println(e.getMessage());
         }
-        
-        AlgorithmResults newResults = new AlgorithmResults();
-        newResults.setAlgorithmName("TestAlgorithm");
-        algorithmResults.add(newResults);
         
         StringBuffer json = new StringBuffer();
         json.append("[");

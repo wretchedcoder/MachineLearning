@@ -106,10 +106,8 @@ public class NeuralGasAlgorithm implements AlgorithmInterface
         AlgorithmResults algResults = new AlgorithmResults();
         algResults.setAlgorithmName("Neural Gas Results");
         algResults.addItem("Dimensions",Integer.toString(centroids[0].getDimensionality()));
-        algResults.setRegions(
-                AlgorithmUtil.convertRegionsToJson(regions));
-        algResults.setCentroids(
-                AlgorithmUtil.convertCentroidsToJson(centroids));
+        algResults.setRegions(regions);
+        algResults.setCentroids(centroids);
         return algResults;
     }
     

@@ -84,10 +84,11 @@
                     $( "input[name='datasource']" ).button();
                 });
             });
-            });
             
             function parseData (jsonData)
             {
+                var colors = ["red", "purple", "blue", "green", "yellow"];
+                
                 $('#resultsDiv').remove();
                 
                 var resultsDiv = document.createElement("div");
@@ -103,16 +104,53 @@
                     $('#resultsDiv').append(newh3);
                     
                     var newDiv = document.createElement("div");
+                    $(newDiv).attr("style","width: 30%; display: inline-block; margin: 1px;");
                     var newTable = document.createElement("table");
                     $(newTable).prop("border","1");
                     
-                    var iterationRow = document.createElement("tr");
-                    $(iterationRow).html("<td>Iterations</td><td>" + jsonData[i].iterations + "</td>")
+                    var j;
+                    for (keyname in jsonData[i].items)
+                    {
+                        var itemRow = document.createElement("tr");
+                        $(itemRow).html("<td>" + keyname + "</td><td>" + jsonData[i].items[keyname] + "</td>")
+                        $(newTable).append(itemRow);
+                    }
                     
-                    $(newTable).append(iterationRow);
+                    var chartDiv = document.createElement("div");
+                    $(chartDiv).attr("id", jsonData[i].algorithmId + "Chart");
+                    $(newDiv).append(chartDiv);
                     
                     $(newDiv).append(newTable);
+                    
                     $('#resultsDiv').append(newDiv);
+                    
+                    var chart1 = new Chart(jsonData[i].algorithmId + "Chart");
+                    chart1.addPlot("default", {type: "Scatter"});
+                    chart1.addAxis("x", {fixLower: "major", fixUpper: "major", includeZero: true, max: 25});
+                    chart1.addAxis("y", {vertical: true, fixLower: "major", fixUpper: "major", includeZero: true, max: 25});
+                    
+                    for (j = 0; j < jsonData[i].regions.length; j++)
+                    {
+                        var dataObj = new Array();
+                        
+                        var k;
+                        for (k = 0; k < jsonData[i].regions[j].patterns.length; k++)
+                        {
+                            dataObj.push({x: jsonData[i].regions[j].patterns[k].attributes[0], 
+                                y: jsonData[i].regions[j].patterns[k].attributes[1],
+                                stroke: colors[j],
+                                fill: colors[j]});
+                        }
+                        
+                        dataObj.push({x: jsonData[i].centroids[j].attributes[0], 
+                            y: jsonData[i].centroids[j].attributes[1],
+                            stroke: colors[j],
+                            fill: "white"});
+                        
+                        chart1.addSeries("Series" + j, dataObj);
+                    }     
+                    
+                    chart1.render();
                 }
                 
                 $('#resultsDiv').accordion({
@@ -141,7 +179,7 @@
                 
                 $('.algClusters').spinner({
                     min: 2,
-                    max: 10
+                    max: 6
                 });
                 $('.algMaxTime').spinner({
                     min: 10,
@@ -165,31 +203,15 @@
                             alert(data);
                             var obj = jQuery.parseJSON(data);
                             parseData(obj);
-                            /*
-                            alert(obj.regions);
-                            var options = {
-                                data: [
-                                {
-                                    type: "scatter", //change it to line, area, column, pie, etc
-                                    dataPoints: [
-                                            { x: 10, y: 10 },
-                                            { x: 20, y: 12 },
-                                            { x: 30, y: 8 },
-                                            { x: 40, y: 14 },
-                                            { x: 50, y: 6 },
-                                            { x: 60, y: 24 },
-                                            { x: 70, y: -4 },
-                                            { x: 80, y: 10 }
-                                    ]
-                                }
-                                ]
-                            };
-                            $('#chart').CanvasJSChart(options);
-                            */
                     });
                 });
                 $('#dataSrcNavBtn').click();
             });
+        });
+            
+            
+            
+            
         </script>
     </head>
     <body style="background-color: #F0EAD6;">
@@ -215,6 +237,10 @@
             <h3>K-Means Algorithm</h3>
             <div id="testTab">                    
                 <jsp:include page="./jsp/kmeansAlgorithm.jsp"/>   
+            </div>   
+            <h3>SOM Algorithm</h3>
+            <div id="testTab">                    
+                <jsp:include page="./jsp/somAlgorithm.jsp"/>   
             </div>   
         </div> <!-- End of Algorithm Tab -->
         </form>

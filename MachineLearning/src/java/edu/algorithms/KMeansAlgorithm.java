@@ -100,13 +100,12 @@ public class KMeansAlgorithm implements AlgorithmInterface
         
         AlgorithmResults algResults = new AlgorithmResults();
         algResults.setAlgorithmName("K-Means Results");
+        algResults.setAlgorithmId("kmeans");
         algResults.addItem("Dimensions", Integer.toString(centroids[0].getDimensionality()));
         algResults.addItem("Iterations", Integer.toString(iterations));
         algResults.addItem("Elapsed Time", Double.toString(elapsedTime / 1000.0));        
-        algResults.setRegions(
-                AlgorithmUtil.convertRegionsToJson(regions));
-        algResults.setCentroids(
-                AlgorithmUtil.convertCentroidsToJson(centroids));
+        algResults.setRegions(regions);
+        algResults.setCentroids(centroids);
         
         return algResults;
     }

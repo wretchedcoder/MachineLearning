@@ -117,11 +117,8 @@ public class KernelSomAlgorithm implements AlgorithmInterface
         // Output Results
         AlgorithmResults algResults = new AlgorithmResults();
         algResults.setAlgorithmName("Kernel SOM Results");
-        algResults.setDimensions(Integer.toString(centroids[0].getDimensionality()));
-        algResults.setRegions(
-                AlgorithmUtil.convertRegionsToJson(regions));
-        algResults.setCentroids(
-                AlgorithmUtil.convertCentroidsToJson(centroids));
+        algResults.setRegions(regions);
+        algResults.setCentroids(centroids);
         return algResults;
     }
     

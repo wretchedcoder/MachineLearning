@@ -27,7 +27,7 @@ public class TestAlgorithm implements AlgorithmInterface {
             HttpServletRequest request, HttpServletResponse response) {
         
         AlgorithmResults results = new AlgorithmResults();
-        results.setIterations("5");
+        
         
         return results;
     } // End of executeAlgorithm()

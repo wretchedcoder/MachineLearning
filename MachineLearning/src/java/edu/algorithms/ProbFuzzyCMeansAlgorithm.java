@@ -145,10 +145,8 @@ public class ProbFuzzyCMeansAlgorithm implements AlgorithmInterface
         algResults.addItem("Iterations", Integer.toString(iterations));
         algResults.addItem("Elapsed Time", Double.toString(elapsedTime / 1000.0)); 
         algResults.addItem("Dimensions",Integer.toString(centroids[0].getDimensionality()));
-        algResults.setRegions(
-                AlgorithmUtil.convertRegionsToJson(regions));
-        algResults.setCentroids(
-                AlgorithmUtil.convertCentroidsToJson(centroids));
+        algResults.setRegions(regions);
+        algResults.setCentroids(centroids);
         return algResults;
     }
     

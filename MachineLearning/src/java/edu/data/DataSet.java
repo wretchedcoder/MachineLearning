@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
@@ -42,7 +43,7 @@ public class DataSet
         }
     }
     
-    public void loadDataSet(File file)
+    public void loadDataSet(File file) throws IOException
     {
         BufferedReader reader = null;
         try
@@ -65,6 +66,13 @@ public class DataSet
         catch (Exception e)
         {
             System.out.println("Could not load datasource");
+        }
+        finally
+        {
+            if (reader != null)
+            {
+                reader.close();
+            }
         }
     }
     

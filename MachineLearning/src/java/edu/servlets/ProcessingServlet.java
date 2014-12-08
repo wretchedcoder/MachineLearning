@@ -6,7 +6,15 @@
 
 package edu.servlets;
 
+import edu.algorithms.AlgorithmUtil;
+import edu.algorithms.FuzzyCMeansAlgorithm;
 import edu.algorithms.KMeansAlgorithm;
+import edu.algorithms.KernelFuzzyCMeansKernelMetric;
+import edu.algorithms.KernelKMeansAlgorithm;
+import edu.algorithms.KernelNeuralGasAlgorithm;
+import edu.algorithms.KernelSomAlgorithm;
+import edu.algorithms.NeuralGasAlgorithm;
+import edu.algorithms.PossFuzzyCMeansAlgorithm;
 import edu.algorithms.SomAlgorithm;
 import edu.algorithms.TestAlgorithm;
 import edu.data.AlgorithmResults;
@@ -91,23 +99,94 @@ public class ProcessingServlet extends HttpServlet {
                         SomAlgorithm.getSomAlgorithm()
                         .executeAlgorithm(dataSource, request, response));
             }
+            testAlgorithmEnabled = (String) request.getParameter("enableNeuralGasAlg");
+            if (testAlgorithmEnabled != null && testAlgorithmEnabled.equals("on"))
+            {
+                algorithmResults.add(
+                        NeuralGasAlgorithm.getNeuralGasAlgorithm()
+                        .executeAlgorithm(dataSource, request, response));
+            }
+            testAlgorithmEnabled = (String) request.getParameter("enableFuzzyCMeansAlg");
+            if (testAlgorithmEnabled != null && testAlgorithmEnabled.equals("on"))
+            {
+                algorithmResults.add(
+                        FuzzyCMeansAlgorithm.getFuzzyCMeansAlgorithm()
+                        .executeAlgorithm(dataSource, request, response));
+            }
+            testAlgorithmEnabled = (String) request.getParameter("enableProbFuzzyCMeansAlg");
+            if (testAlgorithmEnabled != null && testAlgorithmEnabled.equals("on"))
+            {
+                algorithmResults.add(
+                        PossFuzzyCMeansAlgorithm.getProbFuzzyCMeansAlgorithm()
+                        .executeAlgorithm(dataSource, request, response));
+            }
+            testAlgorithmEnabled = (String) request.getParameter("enableKernelKmeansAlg");
+            if (testAlgorithmEnabled != null && testAlgorithmEnabled.equals("on"))
+            {
+                algorithmResults.add(
+                        KernelKMeansAlgorithm.getKernelKMeansAlgorithm()
+                        .executeAlgorithm(dataSource, request, response));
+            }
+            testAlgorithmEnabled = (String) request.getParameter("enableKernelSomAlg");
+            if (testAlgorithmEnabled != null && testAlgorithmEnabled.equals("on"))
+            {
+                algorithmResults.add(
+                        KernelSomAlgorithm.getKernelSomAlgorithm()
+                        .executeAlgorithm(dataSource, request, response));
+            }
+            testAlgorithmEnabled = (String) request.getParameter("enableKernelNeuralGasAlg");
+            if (testAlgorithmEnabled != null && testAlgorithmEnabled.equals("on"))
+            {
+                algorithmResults.add(
+                        KernelNeuralGasAlgorithm.getKernelNeuralGasAlgorithm()
+                        .executeAlgorithm(dataSource, request, response));
+            }
+            testAlgorithmEnabled = (String) request.getParameter("enableKernelFuzzyCMeansKernelMetricAlg");
+            if (testAlgorithmEnabled != null && testAlgorithmEnabled.equals("on"))
+            {
+                algorithmResults.add(
+                        KernelFuzzyCMeansKernelMetric.getKernelFuzzyCMeansKernelMetric()
+                        .executeAlgorithm(dataSource, request, response));
+            }
+            
         }
         catch (Exception e)
         {
-            System.out.println(e.getMessage());
+            AlgorithmResults errorResults = new AlgorithmResults();
+            errorResults.setAlgorithmName("Error Report");
+            errorResults.addItem("Error Message", e.getClass() + ": " + e.getMessage());
+            errorResults.addItem("Stack Trace", e.getStackTrace().toString());
+            errorResults.setCentroids(AlgorithmUtil.emptyPattern());
+            errorResults.setRegions(AlgorithmUtil.emptyDataSet());
+            algorithmResults.add(errorResults);
         }
         
         StringBuffer json = new StringBuffer();
         json.append("[");
         for (int i = 0; i < algorithmResults.size(); i++)
         {
-            json.append(algorithmResults.get(i).toJson());
+            try
+            {
+                json.append(algorithmResults.get(i).toJson());
+            }
+            catch (Exception e)
+            {
+                json.append("{\"algorithmName\": \"Error when parsing " 
+                        + algorithmResults.get(i).getAlgorithmName() + "\"}");
+            }
+            
             json.append(",");
         }     
         json.deleteCharAt(json.length() - 1);
         json.append("]");
         
         response.getWriter().print(json);
+    }
+    
+    private String parseAlgorithmResults(AlgorithmResults algorithmResult)
+    {
+        String json = "";
+        return json;
     }
 
     /**

@@ -43,7 +43,7 @@ public class KMeansAlgorithm implements AlgorithmInterface
         DataSet[] regions = new DataSet[clusters];
         for (int i = 0; i < centroids.length; i++)
         {
-            centroids[i] = dataSet.getPattern(i);
+            centroids[i] = dataSet.getPattern(i).copy();
         }
         
         int iterations = 0;
@@ -100,10 +100,7 @@ public class KMeansAlgorithm implements AlgorithmInterface
         
         AlgorithmResults algResults = new AlgorithmResults();
         algResults.setAlgorithmName("K-Means Results");
-        algResults.setAlgorithmId("kmeans");
-        algResults.addItem("Dimensions", Integer.toString(centroids[0].getDimensionality()));
-        algResults.addItem("Iterations", Integer.toString(iterations));
-        algResults.addItem("Elapsed Time", Double.toString(elapsedTime / 1000.0));        
+        algResults.setAlgorithmId("kmeans");    
         algResults.setRegions(regions);
         algResults.setCentroids(centroids);
         

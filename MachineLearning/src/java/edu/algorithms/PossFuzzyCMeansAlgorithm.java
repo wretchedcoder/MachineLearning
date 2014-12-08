@@ -9,6 +9,8 @@ package edu.algorithms;
 import edu.data.AlgorithmResults;
 import edu.data.DataSet;
 import edu.data.Pattern;
+import java.util.ArrayList;
+import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,16 +18,23 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Lee
  */
-public class ProbFuzzyCMeansAlgorithm implements AlgorithmInterface
+public class PossFuzzyCMeansAlgorithm implements AlgorithmInterface
 {
-    private double l = 1.00;
+    private static Random random;
     
-    public static ProbFuzzyCMeansAlgorithm getProbFuzzyCMeansAlgorithm()
+    static
     {
-        return new ProbFuzzyCMeansAlgorithm();
+        random = new Random();
     }
     
-    private ProbFuzzyCMeansAlgorithm()
+    private double l = 1.00;
+    
+    public static PossFuzzyCMeansAlgorithm getProbFuzzyCMeansAlgorithm()
+    {
+        return new PossFuzzyCMeansAlgorithm();
+    }
+    
+    private PossFuzzyCMeansAlgorithm()
     {
         
     }
@@ -46,42 +55,40 @@ public class ProbFuzzyCMeansAlgorithm implements AlgorithmInterface
         long stopTime = 0L;
         long elapsedTime = 0L;
         
-        int d = dataSet.getPatterns().size();
+        int n = dataSet.getPatterns().size();
+        int d = dataSet.getPattern(0).getDimensionality();
         
         // Initialize Membership Array [cluster][pattern]
-        double initMembership = 1.00 / (double)clusters;
-        double[][] membership = new double[clusters][dataSet.getPatterns().size()];
-        for(int i = 0; i < membership.length; i++)
+        double[][] membership = new double[clusters][n];
+        int sum = AlgorithmUtil.getSummation(clusters);
+        for (int i = 0; i < membership.length; i++)
         {
-            for(int j = 0; j < membership[i].length; j++)
+            for (int j = 0; j < membership[i].length; j++)
             {
-                membership[i][j] = initMembership;
+                membership[i][j] = (double)(i+1) / (double)sum;
             }
         }
         
-        // Initialize Centroids Codebook
+        // Initialize Centroids
         Pattern[] centroids = new Pattern[clusters];
         DataSet[] regions = new DataSet[clusters];
         for(int i = 0; i < membership.length; i++)
         {
-            Pattern top = Pattern.getPattern();
-            top.initAttributes(dataSet.getPattern(0).getDimensionality());
-            double bottom = 1.00;
-            double u = 1.00;
-            for(int j = 0; j < membership[i].length; j++)
+            ArrayList<Integer> alreadyChosen = new ArrayList<Integer>();
+            int idx = random.nextInt(n);
+            if (alreadyChosen.contains(idx))
             {
-                u = Math.pow(membership[i][j], m);
-                top = AlgorithmUtil.addPatterns(top, 
-                        AlgorithmUtil.multiply(dataSet.getPattern(j), u));
-                bottom += u;
+                continue;
             }
-            centroids[i] = AlgorithmUtil.divide(top, bottom);
+            centroids[i] = dataSet.getPattern(i).copy();                    
         }
         
         int iterations = 0;
         boolean centroidsChanged = true;
+        double change = 11.00;
         while (elapsedTime <= maxWaitTime
-                && centroidsChanged) 
+                && centroidsChanged
+                && change <= 1.50) 
         {
             centroidsChanged = false;
             
@@ -97,7 +104,7 @@ public class ProbFuzzyCMeansAlgorithm implements AlgorithmInterface
                             centroids[i]);
                     value = Math.pow(value, 2.00);
                     value = value / this.eta(i, membership, centroids, dataSet);
-                    value += -1;
+                    value *= -1;
                     value = Math.exp(value);
                     
                     membership[i][j] = value;
@@ -112,13 +119,15 @@ public class ProbFuzzyCMeansAlgorithm implements AlgorithmInterface
                 double bottom = 1.00;
                 for(int h = 0; h < membership[i].length; h++)
                 {
-                    top = AlgorithmUtil.multiply(dataSet.getPattern(h), 
-                            membership[i][h]);
+                    top = AlgorithmUtil.addPatterns(top, 
+                            AlgorithmUtil.multiply(dataSet.getPattern(h), 
+                              membership[i][h]));
                     bottom += membership[i][h];
                 }
                 Pattern newCentroid = AlgorithmUtil.divide(top, bottom);
                 if (!newCentroid.equals(centroids[i]))
                 {
+                    change += AlgorithmUtil.getChange(centroids[i], newCentroid);
                     centroids[i] = newCentroid;
                     centroidsChanged = true;
                 }                
@@ -142,9 +151,7 @@ public class ProbFuzzyCMeansAlgorithm implements AlgorithmInterface
         
         AlgorithmResults algResults = new AlgorithmResults();
         algResults.setAlgorithmName("Probabilistic Fuzzy C-Means Results");
-        algResults.addItem("Iterations", Integer.toString(iterations));
-        algResults.addItem("Elapsed Time", Double.toString(elapsedTime / 1000.0)); 
-        algResults.addItem("Dimensions",Integer.toString(centroids[0].getDimensionality()));
+        algResults.setAlgorithmId("possFuzzyCMeans");
         algResults.setRegions(regions);
         algResults.setCentroids(centroids);
         return algResults;

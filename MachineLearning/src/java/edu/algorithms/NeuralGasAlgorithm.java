@@ -53,12 +53,15 @@ public class NeuralGasAlgorithm implements AlgorithmInterface
         this.maxEpsilon = Double.parseDouble(request.getParameter("neuralGasMaxEpsilon"));
         this.decay = Double.parseDouble(request.getParameter("neuralGasDecay"));
         
+        // Set Dimensionality
+        int d = dataSet.getPattern(0).getDimensionality();
+        
         // Initialize Centroids Codebook
         Pattern[] centroids = new Pattern[clusters];
         DataSet[] regions = new DataSet[clusters];
         for (int i = 0; i < centroids.length; i++)
         {
-            centroids[i] = dataSet.getPattern(i);
+            centroids[i] = dataSet.getPattern(i).copy();
         }
         
         // Initialize t
@@ -77,14 +80,16 @@ public class NeuralGasAlgorithm implements AlgorithmInterface
             }
             
             // Adapt each codevector
+            Pattern delta = Pattern.getPattern(d);
             for (int i = 0; i < clusters; i++)
             {
-                centroids[i] = AlgorithmUtil.subtract(
+                delta = AlgorithmUtil.subtract(
                         dataSet.getPattern(x), centroids[i]);
-                centroids[i] = AlgorithmUtil.multiply(centroids[i], 
+                delta = AlgorithmUtil.multiply(delta, 
                         this.h(rank[i]));
-                centroids[i] = AlgorithmUtil.multiply(centroids[i], 
+                delta = AlgorithmUtil.multiply(delta, 
                         this.epsilon(t));
+                centroids[i] = AlgorithmUtil.subtract(centroids[i], delta);
             }
             
             // Increment t
@@ -105,7 +110,7 @@ public class NeuralGasAlgorithm implements AlgorithmInterface
         
         AlgorithmResults algResults = new AlgorithmResults();
         algResults.setAlgorithmName("Neural Gas Results");
-        algResults.addItem("Dimensions",Integer.toString(centroids[0].getDimensionality()));
+        algResults.setAlgorithmId("neuralGas");
         algResults.setRegions(regions);
         algResults.setCentroids(centroids);
         return algResults;
@@ -114,12 +119,8 @@ public class NeuralGasAlgorithm implements AlgorithmInterface
     private double epsilon(int t)
     {
         double value = 1.00;
-        if (t == 0)
-        {
-            return minEpsilon;
-        }
         
-        value = minEpsilon * Math.pow((maxEpsilon / minEpsilon), (t / this.maxTimeStep));
+        value = minEpsilon * Math.pow((maxEpsilon / minEpsilon), ((double)t / (double)this.maxTimeStep));
         
         return value;
     }

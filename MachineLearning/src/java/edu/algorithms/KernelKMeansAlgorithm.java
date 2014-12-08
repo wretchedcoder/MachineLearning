@@ -48,7 +48,8 @@ public class KernelKMeansAlgorithm implements AlgorithmInterface
         
         // Initialize Centroids
         Pattern[] centroids = new Pattern[clusters];
-        DataSet[] regions = new DataSet[clusters];
+        DataSet[] featureRegions = new DataSet[clusters];
+        DataSet[] voronoiRegions = new DataSet[clusters];
         for (int i = 0; i < centroids.length; i++)
         {
             centroids[i] = dataSet.getPattern(i);
@@ -65,18 +66,21 @@ public class KernelKMeansAlgorithm implements AlgorithmInterface
         
         // Get Kernel
         request.setAttribute("variance", variance);
-        IKernel kernel = KernelBuilder.getKernel(request);
+        IKernel kernel = KernelBuilder.getKernel(kernelOpt, variance);
         
         int iterations = 0;
         boolean centroidsChanged = false;
+        boolean firstPass = true;
         while (elapsedTime <= maxWaitTime
                 && !centroidsChanged) 
         {
             // Initialize or Clear Regions
             for (int i = 0; i < centroids.length; i++)
             {
-                regions[i] = null;
-                regions[i] = DataSet.getDataSet();
+                featureRegions[i] = null;
+                featureRegions[i] = DataSet.getDataSet();
+                voronoiRegions[i] = null;
+                voronoiRegions[i] = DataSet.getDataSet();
             }           
             
             centroidsChanged = false;
@@ -88,7 +92,23 @@ public class KernelKMeansAlgorithm implements AlgorithmInterface
                 for (int j = 0; j < centroids.length; j++)
                 {
                     thisDistance = AlgorithmUtil.getKernelDistance(kernel, 
-                            dataSet.getPattern(i), centroids[j]);
+                            dataSet.getPattern(i), centroids[j]);                    
+                    
+                    if (minCluster == -1
+                            || thisDistance < minDistance)
+                    {
+                        minDistance = thisDistance;
+                        minCluster = j;
+                    }                    
+                }
+                featureRegions[minCluster].addPattern(dataSet.getPattern(i));
+                minCluster = -1;
+                minDistance = 0.0;
+                thisDistance = 0.0;
+                for (int j = 0; j < centroids.length; j++)
+                {
+                    thisDistance = AlgorithmUtil.getDistanceInFeatureSpace(kernel, 
+                          dataSet, featureRegions, centroids, j);
                     if (minCluster == -1
                             || thisDistance < minDistance)
                     {
@@ -96,35 +116,37 @@ public class KernelKMeansAlgorithm implements AlgorithmInterface
                         minCluster = j;
                     }
                 }
-                regions[minCluster].addPattern(dataSet.getPattern(i));
+                voronoiRegions[minCluster].addPattern(dataSet.getPattern(i));
             } // assign patterns to regions loop
             
+            // Calculate New Centroids
             for (int i = 0; i < centroids.length; i++)
             {
                 Pattern newCentroid = Pattern.getPattern();
                 newCentroid.initAttributes(centroids[0].getAttributes().size());
-                for (int j = 0; j < regions[i].getPatterns().size(); j++)
+                for (int j = 0; j < voronoiRegions[i].getPatterns().size(); j++)
                 {
-                    newCentroid = AlgorithmUtil.addPatterns(newCentroid, regions[i].getPattern(j));
+                    newCentroid = AlgorithmUtil.addPatterns(newCentroid, voronoiRegions[i].getPattern(j));
                 }
-                newCentroid = AlgorithmUtil.divide(newCentroid, regions[i].getPatterns().size());
+                newCentroid = AlgorithmUtil.divide(newCentroid, voronoiRegions[i].getPatterns().size());
                 if (!newCentroid.equals(centroids[i]))
                 {
                     centroids[i] = newCentroid;
-                    centroidsChanged = true;
-                }
+                    if(!firstPass)
+                    {
+                        centroidsChanged = true;
+                    }
+                }                
             } // calculate new centroids loop              
-            
+            firstPass = false;
             elapsedTime = System.currentTimeMillis() - startTime;  
             iterations++;
         } // while
         
         AlgorithmResults algResults = new AlgorithmResults();
         algResults.setAlgorithmName("Kernel K-Means Results");
-        algResults.addItem("Dimensions", Integer.toString(centroids[0].getDimensionality()));
-        algResults.addItem("Iterations", Integer.toString(iterations));
-        algResults.addItem("Elapsed Time", Double.toString(elapsedTime / 1000.0));        
-        algResults.setRegions(regions);
+        algResults.setAlgorithmId("kernelKMeans");     
+        algResults.setRegions(voronoiRegions);
         algResults.setCentroids(centroids);
         
         return algResults;

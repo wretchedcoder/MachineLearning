@@ -39,7 +39,6 @@
             
             $(document).ready(function() {
                 $.get("./datasets", function(data){
-                    alert(data);
                     var obj = JSON.parse(data);
                     var i;
                     for (i = 0; i < obj.datasources.length; i++)
@@ -178,12 +177,10 @@
                 });
                 
                 $('.algClusters').spinner({
-                    min: 2,
-                    max: 6
+                    min: 1
                 });
                 $('.algMaxTime').spinner({
-                    min: 10,
-                    max: 60
+                    min: 10
                 });
                 
                 $('#dataSrcNavBtn').click(function(e){
@@ -242,6 +239,34 @@
             <div id="testTab">                    
                 <jsp:include page="./jsp/somAlgorithm.jsp"/>   
             </div>   
+            <h3>Neural Gas Algorithm</h3>
+            <div id="testTab">                    
+                <jsp:include page="./jsp/neuralGasAlgorithm.jsp"/>   
+            </div> 
+            <h3>Fuzzy C-Means Algorithm</h3>
+            <div id="testTab">                    
+                <jsp:include page="./jsp/fuzzyCMeansAlgorithm.jsp"/>   
+            </div> 
+            <h3>Possibilistic Fuzzy C-Means Algorithm</h3>
+            <div id="testTab">                    
+                <jsp:include page="./jsp/possFuzzyCMeansAlgorithm.jsp"/>   
+            </div> 
+            <h3>Kernel K-Means Algorithm</h3>
+            <div id="testTab">                    
+                <jsp:include page="./jsp/kernelKMeansAlgorithm.jsp"/>   
+            </div>
+            <h3>Kernel SOM Algorithm</h3>
+            <div id="testTab">                    
+                <jsp:include page="./jsp/kernelSomAlgorithm.jsp"/>   
+            </div>
+            <h3>Kernel Neural Gas Algorithm</h3>
+            <div id="testTab">                    
+                <jsp:include page="./jsp/kernelNeuralGasAlgorithm.jsp"/>   
+            </div>
+            <h3>Kernel Fuzzy C-Means w/ Kernelized Metric Algorithm</h3>
+            <div id="testTab">                    
+                <jsp:include page="./jsp/kernelFuzzyCMeansKernelMetric.jsp"/>   
+            </div>
         </div> <!-- End of Algorithm Tab -->
         </form>
     </body>

@@ -14,21 +14,18 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class KernelBuilder 
 {
-    public static IKernel getKernel(HttpServletRequest request)
+    public static IKernel getKernel(String kernelType, double variance)
     {
-        String kernelType = request.getParameter("kernelType");
         if (kernelType.equals("linear"))
         {
             return LinearKernel.getLinearKernel();
         }
-        else if (kernelType.equals("polynomial"))
+        else if (kernelType.equals("polynomial degree 2"))
         {
-            double degree = Double.parseDouble(request.getParameter("degree"));
-            return PolynomialKernel.getPolynomialKernel(degree);
+            return PolynomialKernel.getPolynomialKernel(2);
         }
         else
         {
-            double variance = (Double)request.getAttribute("variance");
             return GaussianKernel.getGaussianKernel(variance);
         }
     }    

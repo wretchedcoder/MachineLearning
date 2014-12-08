@@ -9,6 +9,8 @@ package edu.algorithms;
 import edu.data.AlgorithmResults;
 import edu.data.DataSet;
 import edu.data.Pattern;
+import edu.kernel.IKernel;
+import edu.kernel.KernelBuilder;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Lee
  */
-public class FuzzyCMeansAlgorithm implements AlgorithmInterface 
+public class KernelFuzzyCMeansKernelMetric implements AlgorithmInterface
 {
     private static Random random;
     
@@ -27,12 +29,12 @@ public class FuzzyCMeansAlgorithm implements AlgorithmInterface
         random = new Random();
     }
     
-    public static FuzzyCMeansAlgorithm getFuzzyCMeansAlgorithm()
+    public static KernelFuzzyCMeansKernelMetric getKernelFuzzyCMeansKernelMetric()
     {
-        return new FuzzyCMeansAlgorithm();
+        return new KernelFuzzyCMeansKernelMetric();
     }
     
-    private FuzzyCMeansAlgorithm()
+    private KernelFuzzyCMeansKernelMetric()
     {
         
     }
@@ -42,10 +44,11 @@ public class FuzzyCMeansAlgorithm implements AlgorithmInterface
             HttpServletRequest request, HttpServletResponse response) 
     {
         // Get All Options
-        int clusters = Integer.parseInt(request.getParameter("fuzzyCMeansClusterOption"));
-        long maxWaitTime = Long.parseLong(request.getParameter("fuzzyCMeansMaxTimeOption"));
-        double m = Double.parseDouble(request.getParameter("fuzzyCMeansMembership"));
+        int clusters = Integer.parseInt(request.getParameter("kernelFuzzyCMeansKernelMetricClusterOption"));
+        long maxWaitTime = Long.parseLong(request.getParameter("kernelFuzzyCMeansKernelMetricMaxTimeOption"));
+        double m = Double.parseDouble(request.getParameter("kernelFuzzyCMeansKernelMetricMembership"));
         maxWaitTime *= 1000;
+        String kernelOpt = request.getParameter("kernelSomKernel");
         
         // Time Variables
         long startTime = System.currentTimeMillis();
@@ -54,6 +57,19 @@ public class FuzzyCMeansAlgorithm implements AlgorithmInterface
         
         int n = dataSet.getPatterns().size();
         int d = dataSet.getPattern(0).getDimensionality();
+        
+        // Get Variance for Gaussian Kernel
+        double variance = 0.00;
+        if (kernelOpt.equals("gaussian"))
+        {
+            Pattern meanPattern = Pattern.getPattern(d);            
+            meanPattern = AlgorithmUtil.getMeanForDataSet(dataSet);
+            variance = AlgorithmUtil.getVarianceForDataSet(meanPattern, dataSet);
+        }
+        
+        // Get Kernel
+        request.setAttribute("variance", variance);
+        IKernel kernel = KernelBuilder.getKernel(kernelOpt, variance);
         
         // Initialize Membership Array [cluster][pattern]
         double[][] membership = new double[clusters][n];
@@ -102,8 +118,8 @@ public class FuzzyCMeansAlgorithm implements AlgorithmInterface
                     value = 0.00;
                     for (int k = 0; k < membership.length; k++)
                     {
-                        top += AlgorithmUtil.getNorm(1.00, dataSet.getPattern(j), centroids[i]);
-                        bottom += AlgorithmUtil.getNorm(1.00, dataSet.getPattern(j), centroids[k]);
+                        top += 1.00 - AlgorithmUtil.getKernelDistance(kernel, dataSet.getPattern(j), centroids[i]);
+                        bottom += 1.00 - AlgorithmUtil.getKernelDistance(kernel, dataSet.getPattern(j), centroids[k]);
                         if (bottom == 0.00)
                         {
                             top += 1.00;
@@ -116,7 +132,7 @@ public class FuzzyCMeansAlgorithm implements AlgorithmInterface
                         value += top;   
                         //value += Math.pow(top, (2.00/(m-1.00)));
                     }
-                    value = Math.pow(value, (2.00/(m - 1.00)));                    
+                    value = Math.pow(value, (1.00/(m - 1.00)));                    
                     
                     membership[i][j] = 1.00 / value;
                 }                     
@@ -132,9 +148,15 @@ public class FuzzyCMeansAlgorithm implements AlgorithmInterface
                 for(int j = 0; j < membership[i].length; j++)
                 {
                     u = Math.pow(membership[i][j], m);
-                    top = AlgorithmUtil.addPatterns(top, 
-                            AlgorithmUtil.multiply(dataSet.getPattern(j), u));
-                    bottom += u;
+                    
+                    top = dataSet.getPattern(i).copy();
+                    top = AlgorithmUtil.multiply(top, 
+                            AlgorithmUtil.getKernelDistance(kernel, 
+                                    dataSet.getPattern(j), centroids[i]));
+                    top = AlgorithmUtil.multiply(top, u);
+                    
+                    bottom += u * AlgorithmUtil.getKernelDistance(kernel, 
+                                    dataSet.getPattern(j), centroids[i]);
                     if (bottom == Double.POSITIVE_INFINITY)
                     {
                         bottom = bottom;
@@ -150,7 +172,6 @@ public class FuzzyCMeansAlgorithm implements AlgorithmInterface
             }            
             
             elapsedTime = System.currentTimeMillis() - startTime;  
-            elapsedTime = 1;
             iterations++;
         }
         
@@ -167,10 +188,10 @@ public class FuzzyCMeansAlgorithm implements AlgorithmInterface
         }
         
         AlgorithmResults algResults = new AlgorithmResults();
-        algResults.setAlgorithmName("Fuzzy C-Means Results");
+        algResults.setAlgorithmName("Kernel Fuzzy C-Means w/ Kernelized Metric Results");
+        algResults.setAlgorithmId("kernelFuzzyCMeansKernelMetric");
         algResults.setRegions(regions);
         algResults.setCentroids(centroids);
         return algResults;
     }
-    
 }

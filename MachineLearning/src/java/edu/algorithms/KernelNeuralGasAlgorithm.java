@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Lee
  */
-public class KernelSomAlgorithm implements AlgorithmInterface 
+public class KernelNeuralGasAlgorithm implements AlgorithmInterface
 {
     private static Random random;
     private double minSigma = 1.00;
@@ -27,30 +27,30 @@ public class KernelSomAlgorithm implements AlgorithmInterface
     private double minEpsilon = 1.00;
     private double maxEpsilon = 1.00;
     private long maxTimeStep = 1;
+    private double decay = 1.00;
     
     static
     {
         random = new Random();
     }
     
-    public static KernelSomAlgorithm getKernelSomAlgorithm()
+    public static KernelNeuralGasAlgorithm getKernelNeuralGasAlgorithm()
     {
-        return new KernelSomAlgorithm();
+        return new KernelNeuralGasAlgorithm();
     }
     
     @Override
     public AlgorithmResults executeAlgorithm(DataSet dataSet, 
             HttpServletRequest request, HttpServletResponse response) {
         // Get All Options
-        int clusters = Integer.parseInt(request.getParameter("kernelSomClusterOption"));
-        long maxWaitTime = Long.parseLong(request.getParameter("kernelSomMaxTimeOption"));
+        int clusters = Integer.parseInt(request.getParameter("kernelNeuralGasClusterOption"));
+        long maxWaitTime = Long.parseLong(request.getParameter("kernelNeuralGasMaxTimeOption"));
         maxWaitTime *= 1000;
-        this.maxTimeStep = Integer.parseInt(request.getParameter("kernelSomMaxTimeStep"));
-        this.minEpsilon = Double.parseDouble(request.getParameter("kernelSomMinEpsilon"));
-        this.maxEpsilon = Double.parseDouble(request.getParameter("kernelSomMaxEpsilon"));
-        this.minSigma = Double.parseDouble(request.getParameter("kernelSomMinSigma"));
-        this.maxSigma = Double.parseDouble(request.getParameter("kernelSomMaxSigma"));
-        String kernelOpt = request.getParameter("kernelSomKernel");
+        this.maxTimeStep = Integer.parseInt(request.getParameter("kernelNeuralGasMaxTimeStep"));
+        this.minEpsilon = Double.parseDouble(request.getParameter("kernelNeuralGasMinEpsilon"));
+        this.maxEpsilon = Double.parseDouble(request.getParameter("kernelNeuralGasMaxEpsilon"));
+        this.decay = Double.parseDouble(request.getParameter("kernelNeuralGasDecay"));
+        String kernelOpt = request.getParameter("kernelNeuralGasKernel");
         
         int d = dataSet.getPatterns().size();
         
@@ -130,11 +130,14 @@ public class KernelSomAlgorithm implements AlgorithmInterface
             } // assign patterns to regions loop
                         
             int closestIdx = AlgorithmUtil.getRegion(dataSet.getPattern(x), voronoiRegions);
-                        
-            // Get Closest Centroid
-            Pattern closestCentroid = 
-                    AlgorithmUtil.getClosestCentroidInFeatureSpace(kernel, dataSet.getPattern(x), 
-                            centroids, dataSet, voronoiRegions, closestIdx);
+                       
+            // Get distance ranks
+            double[] rank = new double[clusters];
+            for (int i = 0; i < clusters; i++)
+            {
+                rank[i] = AlgorithmUtil.getDistanceInFeatureSpace(kernel, 
+                        dataSet, voronoiRegions, centroids, closestIdx);
+            }
             
             // Adapt each codevector
             Pattern delta = Pattern.getPattern(d);
@@ -143,7 +146,7 @@ public class KernelSomAlgorithm implements AlgorithmInterface
                 delta = AlgorithmUtil.subtract(
                         dataSet.getPattern(x), centroids[i]);
                 delta = AlgorithmUtil.multiply(delta, 
-                        this.h(closestCentroid, dataSet.getPattern(x),t));
+                        this.h(rank[i]));
                 delta = AlgorithmUtil.multiply(delta, 
                         this.epsilon(t));
                 centroids[i] = AlgorithmUtil.subtract(centroids[i], delta);
@@ -155,24 +158,17 @@ public class KernelSomAlgorithm implements AlgorithmInterface
         
         // Output Results
         AlgorithmResults algResults = new AlgorithmResults();
-        algResults.setAlgorithmName("Kernel SOM Results");
-        algResults.setAlgorithmId("kernelSom");
+        algResults.setAlgorithmName("Kernel Neural Gas Results");
+        algResults.setAlgorithmId("kernelNeuralGas");
         algResults.setRegions(voronoiRegions);
         algResults.setCentroids(centroids);
         return algResults;
     }
-    
-    private double h(Pattern r, Pattern s, int t)
+            
+    private double h(double p)
     {
-        double top = AlgorithmUtil.getManhattanDistance(r, s);
-        top = Math.pow(top, 2.00);
-        
-        double bottom = 2 * Math.pow(this.sigma(t), 2.00);
-        
-        top = top / bottom;
-        top *= -1.00;
-        
-        double value = Math.exp(top);              
+        p = Math.abs(p);
+        double value = Math.exp( (-1.00 * p) / this.decay);
         return value;
     }
     
@@ -181,15 +177,6 @@ public class KernelSomAlgorithm implements AlgorithmInterface
         double value = 1.00;
         
         value = minEpsilon * Math.pow((maxEpsilon / minEpsilon), ((double)t / (double)this.maxTimeStep));
-        
-        return value;
-    }
-    
-    private double sigma(int t)
-    {
-        double value = 1.00;
-        
-        value = minSigma * Math.pow((maxSigma / minSigma), ((double)t / (double)this.maxTimeStep));
         
         return value;
     }

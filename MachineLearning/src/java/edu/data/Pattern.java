@@ -59,12 +59,6 @@ public class Pattern
         }
     }
     
-    
-    
-    
-    
-    
-    
     public void initAttributes(int count)
     {
         for (int i = 0; i < count; i++)
@@ -126,5 +120,15 @@ public class Pattern
         Gson gson = builder.create();
         String json = gson.toJson(this);
         return json;
+    }
+    
+    public Pattern copy()
+    {
+        Pattern copy = new Pattern(this.getDimensionality());
+        for (int i = 0; i < copy.getDimensionality(); i++)
+        {
+            copy.setAttribute(i, this.getAttribute(i));
+        }
+        return copy;
     }
 }

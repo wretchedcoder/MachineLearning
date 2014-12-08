@@ -48,13 +48,21 @@ public class SomAlgorithm implements AlgorithmInterface
         this.maxEpsilon = Double.parseDouble(request.getParameter("somMaxEpsilon"));
         this.minSigma = Double.parseDouble(request.getParameter("somMinSigma"));
         this.maxSigma = Double.parseDouble(request.getParameter("somMaxSigma"));
+                
+        // Time Variables
+        long startTime = System.currentTimeMillis();
+        long stopTime = 0L;
+        long elapsedTime = 0L;
+        
+        // Get Dimensionality
+        int d = dataSet.getPattern(0).getDimensionality();
         
         // Initialize Centroids Codebook
         Pattern[] centroids = new Pattern[clusters];
         DataSet[] regions = new DataSet[clusters];
         for (int i = 0; i < centroids.length; i++)
         {
-            centroids[i] = dataSet.getPattern(i);
+            centroids[i] = dataSet.getPattern(i).copy();
         }
         
         // Initialize t
@@ -66,21 +74,24 @@ public class SomAlgorithm implements AlgorithmInterface
             int x = random.nextInt(dataSet.getPatterns().size());
             
             // Get Closest Centroid
-            Pattern closestCentroid = AlgorithmUtil.getClosestCentroid(1.00, 
+            Pattern closestCentroid = AlgorithmUtil.getClosestCentroid(2.00, 
                     dataSet.getPattern(x), centroids);
             
             // Adapt each codevector
+            Pattern delta = Pattern.getPattern(d);
             for (int i = 0; i < clusters; i++)
-            {
-                centroids[i] = AlgorithmUtil.subtract(
+            {                
+                delta = AlgorithmUtil.subtract(
                         dataSet.getPattern(x), centroids[i]);
-                centroids[i] = AlgorithmUtil.multiply(centroids[i], 
-                        this.h(closestCentroid, dataSet.getPattern(x),t));
-                centroids[i] = AlgorithmUtil.multiply(centroids[i], 
+                delta = AlgorithmUtil.multiply(delta, 
+                        this.h(dataSet.getPattern(x), centroids[i],t));
+                delta = AlgorithmUtil.multiply(delta, 
                         this.epsilon(t));
+                centroids[i] = AlgorithmUtil.subtract(centroids[i], delta);
             }
             
-            // Increment t
+            // Increment t and Elapsed Time
+            elapsedTime = System.currentTimeMillis() - startTime;
             t++;
         }
         
@@ -91,7 +102,7 @@ public class SomAlgorithm implements AlgorithmInterface
 
         for (int i = 0; i < dataSet.getPatterns().size(); i++)
         {
-            int index = AlgorithmUtil.getClosestCentroidIndex(1.00, 
+            int index = AlgorithmUtil.getClosestCentroidIndex(2.00, 
                 dataSet.getPattern(i), centroids);
             regions[index].addPattern(dataSet.getPattern(i));
         }
@@ -99,21 +110,17 @@ public class SomAlgorithm implements AlgorithmInterface
         // Output Results
         AlgorithmResults algResults = new AlgorithmResults();
         algResults.setAlgorithmName("SOM Results");
+        algResults.setAlgorithmId("som");
         algResults.setRegions(regions);
         algResults.setCentroids(centroids);
-        algResults.addItem("Dimensions", Integer.toString(centroids[0].getDimensionality()));
         return algResults;
     }
     
     private double epsilon(int t)
     {
         double value = 1.00;
-        if (t == 0)
-        {
-            return minEpsilon;
-        }
         
-        value = minEpsilon * Math.pow((maxEpsilon / minEpsilon), (t / this.maxTimeStep));
+        value = minEpsilon * Math.pow((maxEpsilon / minEpsilon), ((double)t / (double)this.maxTimeStep));
         
         return value;
     }
@@ -121,12 +128,8 @@ public class SomAlgorithm implements AlgorithmInterface
     private double sigma(int t)
     {
         double value = 1.00;
-        if (t == 0)
-        {
-            return minSigma;
-        }
         
-        value = minSigma * Math.pow((maxSigma / minSigma), (t / this.maxTimeStep));
+        value = minSigma * Math.pow((maxSigma / minSigma), ((double)t / (double)this.maxTimeStep));
         
         return value;
     }

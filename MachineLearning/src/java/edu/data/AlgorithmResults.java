@@ -30,7 +30,7 @@ public class AlgorithmResults
     public String toJson()
     {
         GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
+        Gson gson = builder.serializeNulls().create();
         String json = gson.toJson(this);
         return json;
     }

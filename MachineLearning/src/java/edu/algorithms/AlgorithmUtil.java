@@ -189,7 +189,7 @@ public class AlgorithmUtil
         double value = 0.00;
         
         value = kernel.apply(p1, p1) + kernel.apply(p2, p2) 
-                - (2 * kernel.apply(p1, p2));
+                - (2.00 * kernel.apply(p1, p2));
         
         return value;
     }
@@ -351,5 +351,13 @@ public class AlgorithmUtil
             }
         }
         return minCluster;
-            }
+    }
+    
+    public static void removePatternFromRegions(DataSet[] regions, Pattern p)
+    {
+        for (int i = 0; i < regions.length; i++)
+        {
+            regions[i].removePattern(p);
+        }
+    }
 }

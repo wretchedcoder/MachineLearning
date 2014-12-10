@@ -11,6 +11,7 @@ import edu.data.AlgorithmResults;
 import edu.data.DataSet;
 import edu.data.Pattern;
 import java.util.ArrayList;
+import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,6 +21,13 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class KMeansAlgorithm implements AlgorithmInterface
 {
+    private static Random random;
+    
+    static
+    {
+        random = new Random();
+    }
+    
     public static KMeansAlgorithm getKMeansAlgorithm()
     {
         return new KMeansAlgorithm();
@@ -38,13 +46,46 @@ public class KMeansAlgorithm implements AlgorithmInterface
         long stopTime = 0L;
         long elapsedTime = 0L;
         
+        int n = dataSet.getPatterns().size();
+        int d = dataSet.getPattern(0).getDimensionality();
         // Initialize Centroids
         Pattern[] centroids = new Pattern[clusters];
         DataSet[] regions = new DataSet[clusters];
+        /*
+        for (int i = 0; i < clusters; i++)
+        {
+            regions[i] = null;
+            regions[i] = DataSet.getDataSet();
+        }
+        */
+        
         for (int i = 0; i < centroids.length; i++)
         {
-            centroids[i] = dataSet.getPattern(i).copy();
+            ArrayList<Integer> alreadyChosen = new ArrayList<Integer>();
+            int idx = random.nextInt(n);
+            if (alreadyChosen.contains(idx))
+            {
+                continue;
+            }
+            alreadyChosen.add(idx);
+            centroids[i] = dataSet.getPattern(idx).copy();
         }
+        
+        /*
+        for (int i = 0; i < n; i++)
+        {
+            regions[i % clusters].addPattern(dataSet.getPattern(i));
+        }
+        for (int i = 0; i < clusters; i++)
+        {
+            Pattern meanPattern = Pattern.getPattern(d);
+            for (int j = 0; j < regions[i].getPatterns().size(); j++)
+            {
+                meanPattern = AlgorithmUtil.addPatterns(meanPattern, regions[i].getPattern(j));
+            }
+            centroids[i] = AlgorithmUtil.divide(meanPattern, regions[i].getPatterns().size());
+        }
+        */
         
         int iterations = 0;
         boolean centroidsChanged = true;

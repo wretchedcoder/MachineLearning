@@ -9,6 +9,7 @@ package edu.servlets;
 import edu.algorithms.AlgorithmUtil;
 import edu.algorithms.FuzzyCMeansAlgorithm;
 import edu.algorithms.KMeansAlgorithm;
+import edu.algorithms.KernelFuzzyCMeansFeatureSpace;
 import edu.algorithms.KernelFuzzyCMeansKernelMetric;
 import edu.algorithms.KernelKMeansAlgorithm;
 import edu.algorithms.KernelNeuralGasAlgorithm;
@@ -146,6 +147,13 @@ public class ProcessingServlet extends HttpServlet {
             {
                 algorithmResults.add(
                         KernelFuzzyCMeansKernelMetric.getKernelFuzzyCMeansKernelMetric()
+                        .executeAlgorithm(dataSource, request, response));
+            }
+            testAlgorithmEnabled = (String) request.getParameter("enableKernelFuzzyCMeansFeatureSpaceAlg");
+            if (testAlgorithmEnabled != null && testAlgorithmEnabled.equals("on"))
+            {
+                algorithmResults.add(
+                        KernelFuzzyCMeansFeatureSpace.getKernelFuzzyCMeansFeatureSpace()
                         .executeAlgorithm(dataSource, request, response));
             }
             

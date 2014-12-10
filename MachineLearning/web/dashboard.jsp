@@ -197,7 +197,6 @@
                     // Call Java to get results
                     $.post('./Processing', $('#processForm').serialize(), 
                         function(data){
-                            alert(data);
                             var obj = jQuery.parseJSON(data);
                             parseData(obj);
                     });
@@ -266,6 +265,10 @@
             <h3>Kernel Fuzzy C-Means w/ Kernelized Metric Algorithm</h3>
             <div id="testTab">                    
                 <jsp:include page="./jsp/kernelFuzzyCMeansKernelMetric.jsp"/>   
+            </div>
+            <h3>Kernel Fuzzy C-Means in Feature Space Algorithm</h3>
+            <div id="testTab">                    
+                <jsp:include page="./jsp/kernelFuzzyCMeansFeatureSpace.jsp"/>   
             </div>
         </div> <!-- End of Algorithm Tab -->
         </form>

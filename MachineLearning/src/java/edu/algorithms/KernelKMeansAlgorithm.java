@@ -11,6 +11,7 @@ import edu.data.DataSet;
 import edu.data.Pattern;
 import edu.kernel.IKernel;
 import edu.kernel.KernelBuilder;
+import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,6 +21,13 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class KernelKMeansAlgorithm implements AlgorithmInterface
 {
+    private static Random random;
+    
+    static
+    {
+        random = new Random();
+    }
+    
     public static KernelKMeansAlgorithm getKernelKMeansAlgorithm()
     {
         return new KernelKMeansAlgorithm();
@@ -48,11 +56,19 @@ public class KernelKMeansAlgorithm implements AlgorithmInterface
         
         // Initialize Centroids
         Pattern[] centroids = new Pattern[clusters];
+        Pattern[] featureCentroids = new Pattern[clusters];
         DataSet[] featureRegions = new DataSet[clusters];
         DataSet[] voronoiRegions = new DataSet[clusters];
         for (int i = 0; i < centroids.length; i++)
         {
-            centroids[i] = dataSet.getPattern(i);
+            /*
+            int a = random.nextInt(dataSet.getPatterns().size());
+            
+            centroids[i] = dataSet.getPattern(a).copy();
+            featureCentroids[i] = dataSet.getPattern(a).copy();
+            */
+            centroids[i] = dataSet.getPattern(i).copy();
+            featureCentroids[i] = dataSet.getPattern(i).copy();
         }
         
         // Get Variance for Gaussian Kernel
@@ -71,8 +87,7 @@ public class KernelKMeansAlgorithm implements AlgorithmInterface
         int iterations = 0;
         boolean centroidsChanged = false;
         boolean firstPass = true;
-        while (elapsedTime <= maxWaitTime
-                && !centroidsChanged) 
+        while (!centroidsChanged) 
         {
             // Initialize or Clear Regions
             for (int i = 0; i < centroids.length; i++)
@@ -95,20 +110,20 @@ public class KernelKMeansAlgorithm implements AlgorithmInterface
                             dataSet.getPattern(i), centroids[j]);                    
                     
                     if (minCluster == -1
-                            || thisDistance < minDistance)
+                            || thisDistance <= minDistance)
                     {
                         minDistance = thisDistance;
                         minCluster = j;
                     }                    
                 }
-                featureRegions[minCluster].addPattern(dataSet.getPattern(i));
+                featureRegions[minCluster].addPattern(dataSet.getPattern(i).copy());
                 minCluster = -1;
                 minDistance = 0.0;
                 thisDistance = 0.0;
                 for (int j = 0; j < centroids.length; j++)
                 {
                     thisDistance = AlgorithmUtil.getDistanceInFeatureSpace(kernel, 
-                          dataSet, featureRegions, centroids, j);
+                          dataSet, featureRegions, featureCentroids, j);
                     if (minCluster == -1
                             || thisDistance < minDistance)
                     {
@@ -116,7 +131,7 @@ public class KernelKMeansAlgorithm implements AlgorithmInterface
                         minCluster = j;
                     }
                 }
-                voronoiRegions[minCluster].addPattern(dataSet.getPattern(i));
+                voronoiRegions[minCluster].addPattern(dataSet.getPattern(i).copy());
             } // assign patterns to regions loop
             
             // Calculate New Centroids
@@ -128,10 +143,24 @@ public class KernelKMeansAlgorithm implements AlgorithmInterface
                 {
                     newCentroid = AlgorithmUtil.addPatterns(newCentroid, voronoiRegions[i].getPattern(j));
                 }
-                newCentroid = AlgorithmUtil.divide(newCentroid, voronoiRegions[i].getPatterns().size());
+                if (voronoiRegions[i].getPatterns().size() != 0)
+                {
+                    newCentroid = AlgorithmUtil.divide(newCentroid, voronoiRegions[i].getPatterns().size());
+                }
+                else
+                {
+                    int b = random.nextInt(dataSet.getPatterns().size());
+                    newCentroid = centroids[i];
+                    /*
+                    AlgorithmUtil.removePatternFromRegions(featureRegions, dataSet.getPattern(b));
+                    AlgorithmUtil.removePatternFromRegions(voronoiRegions, dataSet.getPattern(b));
+                    featureRegions[i].addPattern(newCentroid);
+                    voronoiRegions[i].addPattern(newCentroid);
+                            */
+                }                
                 if (!newCentroid.equals(centroids[i]))
                 {
-                    centroids[i] = newCentroid;
+                    centroids[i] = newCentroid.copy();
                     if(!firstPass)
                     {
                         centroidsChanged = true;
